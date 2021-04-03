@@ -30,6 +30,8 @@ async function main() {
         }
     });
 
+    var bestPrice = 0;
+
     if (books.Items.length > 0) {
         var ASIN = '';
 
@@ -38,15 +40,17 @@ async function main() {
         if (books.Items.length == 1) {
             ASIN = books.Items[0].Identifiers.MarketplaceASIN.ASIN;
         } else {
-            playSound('attn.mp3');
             allTitles = [];
             books.Items.forEach(book => {
                 allTitles.push(book.AttributeSets[0].Title);
             });
-            allTitles.filter(onlyUnique);
+            const uniqueTitles = Array.from(new Set(allTitles))  
 
-            if (allTitles.length > 0) {
-                            //Book titles are different
+            console.log(uniqueTitles);
+
+            if (uniqueTitles.length > 1) {
+                //Book titles are different
+                playSound('attn.mp3');
 
                 for (let i = 0; i < books.Items.length; i++) {
                     console.log(`[${i}] -> ${books.Items[i].AttributeSets[0].Title}`);
@@ -56,23 +60,27 @@ async function main() {
                     console.log('Please pick a number from the list...')
                 });
                 ASIN = books.Items[choice].Identifiers.MarketplaceASIN.ASIN;
+                var bestPricingData = await getCompetitivePricing([ASIN]);
+                console.log(bestPricingData);
+                bestPrice = bestPricingData.bestPrice;
 
             } else {
                 //Book titles are the same. Find the one with the pricing. 
                 allPrices = [];
+                allASINs = [];
                 books.Items.forEach(book => {
-                    const currentASIN = book.AttributeSets[0].Title;
-                    allPrices.push(getCompetitivePricing(currentASIN));
+                    allASINs.push(book.Identifiers.MarketplaceASIN.ASIN);
                 });
+
+                var bestPricingData = await getCompetitivePricing(allASINs);
+                ASIN = bestPricingData.ASIN;
+                bestPrice = bestPricingData.bestPrice;
             }
 
-
-
-
-
-
-
         }
+
+        var priceDifference = 0;
+
 
         console.log(`ASIN: ${ASIN}`);
 
@@ -139,28 +147,58 @@ function playSound(file) {
     })
 }
 
-function onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
-}
-
-async function getCompetitivePricing(ASIN) {
+async function getCompetitivePricing(ASINS) {
     let pricing = await sellingPartner.callAPI({
         operation: 'getCompetitivePricing',
         query: {
             MarketplaceId: process.env.MARKET_ID,
-            Asins: [ASIN],
+            Asins: ASINS,
             ItemType: 'Asin'
         }
     });
 
     var allPrices = [];
-    var priceDifference = 0;
-    pricing[0].Product.CompetitivePricing.CompetitivePrices.forEach(price => {
-        if (price.Price.condition == 'Used') {
-            allPrices.push(price.Price.LandedPrice.Amount);
-        }
+    var validASINs = [];
+    pricing.forEach(product => {
+        product.Product.CompetitivePricing.CompetitivePrices.forEach(price => {
+            if (price.Price.condition == 'Used') {
+                allPrices.push(price.Price.LandedPrice.Amount);
+                if (!validASINs.includes(product.ASIN)) {
+                    validASINs.push(product.ASIN);
+                }
+            }
+        });
     });
-    return allPrices.reduce((a, b) => a + b, 0) / allPrices.length
+
+    console.log(validASINs);
+
+    var correctASIN;
+    if (validASINs.length > 1) {
+        playSound('attn.mp3');
+        for (let i = 0; i < validASINs.length; i++) {
+            console.log(`[${i}] -> ${validASINs[i]}`);            
+        }
+
+        const choice = prompt('Multiple ASINs! Which is correct? >> ', function (val) {
+            if (val <= validASINs.length && val >= 0) return true
+            console.log('Please pick a number from the list...')
+        });
+
+        correctASIN = validASINs[choice];
+    } else { 
+        correctASIN = validASINs[0];
+    }
+
+    if (allPrices.length == 0) {
+        console.error('No pricing data available, save for later?');
+        playSound('attn.mp3');
+        main();
+    }
+
+    return {
+        ASIN: correctASIN,
+        bestPrice: allPrices.reduce((a, b) => a + b, 0) / allPrices.length
+    }
 }
 
 main();
