@@ -19,7 +19,7 @@ A simple script that uses the Amazon Seller API to quickly determine the profita
 Make sure you have nodejs installed. 
 
 ```
-$ git clone https://github.com/oschwartz10612/amazon-book-scanner
+$ git clone https://github.com/oschwartz10612/amazon-book-scanner.git
 
 $ npm install
 ```
