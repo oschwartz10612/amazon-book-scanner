@@ -29,5 +29,5 @@ $ npm install
 Configure .env variables. You can use the [Amazon API guide](https://github.com/amzn/selling-partner-api-docs/blob/main/guides/en-US/developer-guide/SellingPartnerApiDeveloperGuide.md) to learn how to generate these values.
 
 ```
-node app.js
+$ node app.js
 ```
