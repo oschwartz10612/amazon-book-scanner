@@ -1,12 +1,12 @@
 {
-  "name": "amazon-books",
+  "name": "amazon-book-scanner",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Owen Schwartz",
   "license": "ISC",
   "dependencies": {
     "amazon-sp-api": "^0.3.6",
