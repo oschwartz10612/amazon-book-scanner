@@ -115,7 +115,7 @@ async function main() {
                 console.log('Please pick a valid condition...')
             });
 
-            fs.appendFileSync(outFile, `bookloader,sku,${ASIN},ASIN,,,,,,,,,,${bestPrice},1,,,,,,,,,,,,,,,${condition}`);
+            fs.appendFileSync(outFile, `bookloader,sku,${ASIN},ASIN,,,,,,,,,${bestPrice},1,,,,,,,,,,,,,,${condition}\n`);
 
         } else {
             playSound('fail.mp3')
