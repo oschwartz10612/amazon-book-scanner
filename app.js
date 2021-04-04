@@ -11,13 +11,18 @@ let sellingPartner = new SellingPartnerAPI({
 });
 
 const outFile = prompt('Out filename >> ');
-var boxID;
+const skuFrag = prompt('SKU starting fragment >> ');
+var skuCounter = 0;
 
 //TODO: Create and track sku - database?
 //TODO: Get sales rank and last 30 day sales?
 
 async function main() {
-    const ISBN = prompt('ISBN/BOXID/STOP >> ', function (val) {
+    var ASIN = '';
+    var title = '';
+    var bestPrice = 0;
+
+    const ISBN = prompt('ISBN >> ', function (val) {
         if (val == 'stop') {
             process.exit();
         } else if (val.startsWith('boxid')) {
@@ -38,11 +43,10 @@ async function main() {
     });
 
     if (books.Items.length > 0) {
-        var ASIN = '';
-        var bestPrice = 0;
 
         if (books.Items.length == 1) {
             ASIN = books.Items[0].Identifiers.MarketplaceASIN.ASIN;
+            title = books.Items[0].AttributeSets[0].Title;
             var bestPricingData = await getCompetitivePricing([ASIN]);
             bestPrice = bestPricingData.bestPrice;
         } else {
@@ -66,6 +70,7 @@ async function main() {
                     console.log('Please pick a number from the list...')
                 });
                 ASIN = books.Items[choice].Identifiers.MarketplaceASIN.ASIN;
+                title = books.Items[choice].AttributeSets[0].Title;
                 var bestPricingData = await getCompetitivePricing([ASIN]);
                 bestPrice = bestPricingData.bestPrice;
 
@@ -80,6 +85,11 @@ async function main() {
                 var bestPricingData = await getCompetitivePricing(allASINs);
                 ASIN = bestPricingData.ASIN;
                 bestPrice = bestPricingData.bestPrice;
+                books.Items.forEach(book => {
+                    if (book.Identifiers.MarketplaceASIN.ASIN == ASIN) {
+                        title = book.AttributeSets[0].Title;
+                    }
+                });
             }
 
         }
@@ -102,14 +112,24 @@ async function main() {
                             Amount: bestPrice
                         }
                     },
-                    Identifier: 'ggdfgsdggg'
+                    Identifier: `${skuFrag}-${skuCounter}-fee`
                 }
             }
         });
 
-        console.log(`Total fees: ${fees.FeesEstimateResult.FeesEstimate.TotalFeesEstimate.Amount}`);
+        var fee = 0;
 
-        const priceDifference = bestPrice - fees.FeesEstimateResult.FeesEstimate.TotalFeesEstimate.Amount;
+        if (typeof fee.Error != undefined) {
+            console.error('Unable to find fee...');
+            fee = bestPrice * .5;
+        } else {
+            console.log('ere');
+            fee = fees.FeesEstimateResult.FeesEstimate.TotalFeesEstimate.Amount;
+        }
+
+        console.log(`Total fees: ${fee}`);
+
+        const priceDifference = bestPrice - fee;
         console.log(`Price difference: ${priceDifference}`);
 
         if (priceDifference > process.env.PRICE_THRESHOLD) {
@@ -118,7 +138,8 @@ async function main() {
 
             const condition = prompt('What is the condition? >> ');
 
-            fs.appendFileSync(outFile, `${ISBN},bookloader,sku,${ASIN},ASIN,,,,,,,,,${bestPrice},1,,,,,,,,,,,,,,${condition}\n`);
+            fs.appendFileSync(outFile, `${ISBN},bookloader,${skuFrag}-${skuCounter},${ASIN},ASIN,${title},,,,,,,,${bestPrice},,,AMAZON_NA,,,,,,,,,,,,,,,,,,,${condition}\n`);
+            skuCounter += 1;
 
         } else {
             playSound('fail.mp3')
@@ -208,11 +229,17 @@ async function getCompetitivePricing(ASINS) {
         correctASIN = validASINs[0];
     }
 
+    const bestPrice = Math.min(...allPrices);
+
+    if (bestPrice == Infinity) {
+        bestPrice = 0;
+    }
+
     return {
         ASIN: correctASIN,
         //bestPrice: allPrices.reduce((a, b) => a + b, 0) / allPrices.length
         //bestPrice: median(allPrices),
-        bestPrice: Math.min(...allPrices)
+        bestPrice: bestPrice
     }
 }
 
