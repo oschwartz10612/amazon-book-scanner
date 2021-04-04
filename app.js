@@ -11,11 +11,17 @@ let sellingPartner = new SellingPartnerAPI({
 });
 
 const outFile = prompt('Out filename >> ');
+var boxID;
+
+//TODO: Create and track sku - database?
+//TODO: Get sales rank and last 30 day sales?
 
 async function main() {
-    const ISBN = prompt('ISBN >> ', function (val) {
+    const ISBN = prompt('ISBN/BOXID/STOP >> ', function (val) {
         if (val == 'stop') {
             process.exit();
+        } else if (val.startsWith('boxid')) {
+            
         }
         if (val != undefined && val != '' && ISBNAuditer.audit(val).validIsbn == true) return true;
         console.log('Please enter a valid ISBN...')
@@ -110,12 +116,9 @@ async function main() {
 
             playSound('success.mp3');
 
-            const condition = prompt('What is the condition? >> ', function (val) {
-                if (true) return true
-                console.log('Please pick a valid condition...')
-            });
+            const condition = prompt('What is the condition? >> ');
 
-            fs.appendFileSync(outFile, `bookloader,sku,${ASIN},ASIN,,,,,,,,,${bestPrice},1,,,,,,,,,,,,,,${condition}\n`);
+            fs.appendFileSync(outFile, `${ISBN},bookloader,sku,${ASIN},ASIN,,,,,,,,,${bestPrice},1,,,,,,,,,,,,,,${condition}\n`);
 
         } else {
             playSound('fail.mp3')
