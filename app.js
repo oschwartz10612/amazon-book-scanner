@@ -229,7 +229,7 @@ async function getCompetitivePricing(ASINS) {
         correctASIN = validASINs[0];
     }
 
-    const bestPrice = Math.min(...allPrices);
+    var bestPrice = Math.min(...allPrices);
 
     if (bestPrice == Infinity) {
         bestPrice = 0;
