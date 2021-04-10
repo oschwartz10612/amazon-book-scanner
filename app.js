@@ -12,7 +12,8 @@ let sellingPartner = new SellingPartnerAPI({
 });
 
 var lastId = 0;
-var BOX = "";
+var profit_box = "value_box0";
+var unprofit_box = "box0";
 
 function makeDb(config) {
   const connection = mysql.createConnection(config);
@@ -34,11 +35,19 @@ const db = makeDb({
 });
 
 async function getStartingSKU() {
-  const lastRow = await db.query(
+  var lastRow = await db.query(
     "SELECT * FROM profitable_books ORDER BY id DESC LIMIT 0, 1"
   );
-  BOX = lastRow[0].box_id;
-  lastId = lastRow[0].id;
+  if (lastRow.length > 0) {
+    profit_box = lastRow[0].box_id;
+    lastId = lastRow[0].id; 
+  }
+  lastRow = await db.query(
+    "SELECT * FROM unprofitable_books ORDER BY id DESC LIMIT 0, 1"
+  );
+  if (lastRow.length > 0) {
+    unprofit_box = lastRow[0].box_id;
+  }
   main();
 }
 
@@ -47,8 +56,12 @@ function getISBN() {
         if (val == "stop") {
           process.exit();
         } else if (val.startsWith("box")) {
-            BOX = val;
-            console.log(`Nex box is is: ${BOX}`);
+            unprofit_box = val;
+            console.log(`Next box is is: ${unprofit_box}`);
+            return true;
+        } else if (val.startsWith("value_box")) {
+            profit_box = val;
+            console.log(`Next box is is: ${profit_box}`);
             return true;
         }
         else if (
@@ -62,7 +75,7 @@ function getISBN() {
         console.log("Please enter a valid ISBN...");
         playSound("fail.mp3");
       });
-      if (ISBN.startsWith("box")) {
+      if (ISBN.startsWith("box") || ISBN.startsWith("value_box")) {
         return getISBN();
       } else {
         return ISBN;
@@ -155,7 +168,7 @@ async function main() {
               Amount: bestPrice,
             },
           },
-          Identifier: `${BOX}_rb${lastId + 1}-fee`,
+          Identifier: `${profit_box}_rb${lastId + 1}-fee`,
         },
       },
     });
@@ -180,8 +193,8 @@ async function main() {
       const condition = prompt("What is the condition? >> ");
 
       const insertedRow = await db.query("INSERT INTO profitable_books SET ?", {
-        SKU: `${BOX}_rb${lastId + 1}`,
-        box_id: BOX,
+        SKU: `${profit_box}_rb${lastId + 1}`,
+        box_id: profit_box,
         ISBN: ISBN,
         ASIN: ASIN,
         title: title,
@@ -194,12 +207,24 @@ async function main() {
       lastId = insertedRow.insertId;
 
     } else {
+        await db.query("INSERT INTO unprofitable_books SET ?", {
+            box_id: unprofit_box,
+            ISBN: ISBN,
+            ASIN: ASIN,
+            title: title,
+            profit: priceDifference,
+            best_price: bestPrice,
+            fee: fee,
+            rank: rank
+          });
       playSound("fail.mp3");
     }
   } else {
-    player.play("assets/fail.mp3", function (err) {
-      if (err) console.log(`Could not play audio: ${err}`);
-    });
+      playSound('fail.mp3');
+      await db.query("INSERT INTO unprofitable_books SET ?", {
+        box_id: unprofit_box,
+        ISBN: ISBN
+      });
     console.warn("No item found!");
   }
 
