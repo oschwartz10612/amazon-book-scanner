@@ -119,11 +119,10 @@ async function main() {
 
         var fee = 0;
 
-        if (typeof fee.Error != undefined) {
+        if (typeof fee.Error == undefined) {
             console.error('Unable to find fee...');
             fee = bestPrice * .5;
         } else {
-            console.log('ere');
             fee = fees.FeesEstimateResult.FeesEstimate.TotalFeesEstimate.Amount;
         }
 
@@ -180,6 +179,7 @@ async function getCompetitivePricing(ASINS) {
 
     var allPrices = [];
     var validASINs = [];
+    console.log(JSON.stringify(pricing, null, 2));
     pricing.forEach(product => {
         product.Product.CompetitivePricing.CompetitivePrices.forEach(price => {
             if (price.Price.condition == 'Used') {
@@ -229,7 +229,19 @@ async function getCompetitivePricing(ASINS) {
         correctASIN = validASINs[0];
     }
 
-    var bestPrice = Math.min(...allPrices);
+    //var bestPrice = Math.min(...allPrices);
+    console.log(allPrices);
+    console.log(Math.round(allPrices.length*.3));
+    var i = ((Math.round(allPrices.length*.3) == 0) ? 1 : Math.round(allPrices.length*.3))
+    console.log(i);
+    var total = 0;
+    for (let a = 0; a < i; a++) {
+        console.log(allPrices[a]);
+        total += allPrices[a];
+    }
+    console.log(total);
+    const bestPrice = total/i;
+    console.log(bestPrice);
 
     if (bestPrice == Infinity) {
         bestPrice = 0;
@@ -237,8 +249,7 @@ async function getCompetitivePricing(ASINS) {
 
     return {
         ASIN: correctASIN,
-        //bestPrice: allPrices.reduce((a, b) => a + b, 0) / allPrices.length
-        //bestPrice: median(allPrices),
+
         bestPrice: bestPrice
     }
 }
