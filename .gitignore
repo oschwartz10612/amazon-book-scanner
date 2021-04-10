@@ -3,3 +3,5 @@ secrets.txt
 .env
 test.js
 firestore.json
+cloud_sql_proxy
+Makefile
