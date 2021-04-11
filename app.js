@@ -189,6 +189,10 @@ async function main() {
     const priceDifference = bestPrice - fee;
     console.log(`Price difference: ${priceDifference}`);
 
+    if (rank == undefined) {
+      rank = "unknown"
+    }
+
     if (priceDifference > process.env.PRICE_THRESHOLD) {
       playSound("success.mp3");
 
