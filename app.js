@@ -104,7 +104,10 @@ async function main() {
     if (books.Items.length == 1) {
       ASIN = books.Items[0].Identifiers.MarketplaceASIN.ASIN;
       title = books.Items[0].AttributeSets[0].Title;
-        rank = books.Items[0].SalesRankings[0].Rank;
+      const SalesRankings = books.Items[0].SalesRankings[0];
+      rank = SalesRankings ? SalesRankings.Rank : undefined;
+   
+        
       var bestPricingData = await getCompetitivePricing([ASIN]);
       bestPrice = bestPricingData.bestPrice;
     } else {
@@ -146,7 +149,9 @@ async function main() {
         books.Items.forEach((book) => {
           if (book.Identifiers.MarketplaceASIN.ASIN == ASIN) {
             title = book.AttributeSets[0].Title;
-            rank = book.SalesRankings[0].Rank
+            if (typeof book.SalesRankings[0].Rank != undefined) {
+              rank = book.SalesRankings[0].Rank;
+            }
           }
         });
       }
