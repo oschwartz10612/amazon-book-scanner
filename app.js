@@ -48,6 +48,8 @@ async function getStartingSKU() {
   if (lastRow.length > 0) {
     unprofit_box = lastRow[0].box_id;
   }
+  console.log(`Value box is : ${profit_box}`);
+  console.log(`Failure box is : ${unprofit_box}`);
   main();
 }
 
@@ -57,11 +59,11 @@ function getISBN() {
           process.exit();
         } else if (val.startsWith("box")) {
             unprofit_box = val;
-            console.log(`Next box is is: ${unprofit_box}`);
+            console.log(`Next box is: ${unprofit_box}`);
             return true;
         } else if (val.startsWith("value_box")) {
             profit_box = val;
-            console.log(`Next box is is: ${profit_box}`);
+            console.log(`Next box is: ${profit_box}`);
             return true;
         }
         else if (
@@ -308,21 +310,16 @@ async function getCompetitivePricing(ASINS) {
   }
 
   //var bestPrice = Math.min(...allPrices);
-  console.log(allPrices);
-  console.log(Math.round(allPrices.length * 0.3));
   var i =
     Math.round(allPrices.length * 0.3) == 0
       ? 1
       : Math.round(allPrices.length * 0.3);
-  console.log(i);
   var total = 0;
   for (let a = 0; a < i; a++) {
     console.log(allPrices[a]);
     total += allPrices[a];
   }
-  console.log(total);
   const bestPrice = total / i;
-  console.log(bestPrice);
 
   if (bestPrice == Infinity) {
     bestPrice = 0;
