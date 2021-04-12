@@ -4,6 +4,8 @@ A simple script that uses the Amazon Seller API to quickly determine the profita
 
 ## How does this work?
 
+### App.js
+
 1. Using a barcode scanner, scan the barcode ISBN into the prompt.
 
 2. Using the Amazon API, the script finds the ASIN number for the ISBN.
@@ -13,6 +15,10 @@ A simple script that uses the Amazon Seller API to quickly determine the profita
 
 4. Competitive pricing - fees = profitability.  If this is above a threshold it plays a sound to let the scanner know it is profitable, if it is not you get a different sound. It then creates a listing with the book information. 
     * NOTE: This does not create FBA listings; you must convert that later.
+
+### Android.js
+
+The idea here is to use the Amazon seller app to scan the covers of books that don't have barcodes. Using something like `scrcpy` you can view and copy the ASIN in the app to your clipboard. When it detects a new ASIN copied, it runs the same procedure as above to determine profitability.
 
 ## Installation
 
