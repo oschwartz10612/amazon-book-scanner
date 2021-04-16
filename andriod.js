@@ -146,36 +146,36 @@ async function main(clipASIN) {
 
       const condition = prompt("What is the condition? >> ");
 
-    //   const insertedRow = await db.query("INSERT INTO profitable_books SET ?", {
-    //     SKU: `${profit_box}_rb${lastId + 1}`,
-    //     box_id: profit_box,
-    //     ASIN: ASIN,
-    //     title: title,
-    //     condition: condition,
-    //     profit: priceDifference,
-    //     best_price: bestPrice,
-    //     fee: fee,
-    //     rank: rank,
-    //   });
+      const insertedRow = await db.query("INSERT INTO profitable_books SET ?", {
+        SKU: `${profit_box}_rb${lastId + 1}`,
+        box_id: profit_box,
+        ASIN: ASIN,
+        title: title,
+        condition: condition,
+        profit: priceDifference,
+        best_price: bestPrice,
+        fee: fee,
+        rank: rank,
+      });
       lastId = insertedRow.insertId;
     } else {
 
-    //   await db.query("INSERT INTO unprofitable_books SET ?", {
-    //     box_id: unprofit_box,
-    //     ASIN: ASIN,
-    //     title: title,
-    //     profit: priceDifference,
-    //     best_price: bestPrice,
-    //     fee: fee,
-    //     rank: rank,
-    //   });
+      await db.query("INSERT INTO unprofitable_books SET ?", {
+        box_id: unprofit_box,
+        ASIN: ASIN,
+        title: title,
+        profit: priceDifference,
+        best_price: bestPrice,
+        fee: fee,
+        rank: rank,
+      });
       playSound("fail.mp3");
     }
   } else {
     playSound("fail.mp3");
-    // await db.query("INSERT INTO unprofitable_books SET ?", {
-    //   box_id: unprofit_box,
-    // });
+    await db.query("INSERT INTO unprofitable_books SET ?", {
+      box_id: unprofit_box,
+    });
     console.warn("No item found!");
   }
 }
