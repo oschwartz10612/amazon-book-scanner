@@ -62,12 +62,21 @@ async function getStartingSKU() {
   console.log(`Value box is : ${profit_box}`);
   console.log(`Failure box is : ${unprofit_box}`);
 
-  const newBox = prompt("BOX >> ");
+  var newBox = prompt("BOX >> ");
   if (newBox.startsWith("box")) {
-    unprofit_box = val;
+    unprofit_box = newBox;
     console.log(`Next box is: ${unprofit_box}`);
   } else if (newBox.startsWith("value_box")) {
-    profit_box = val;
+    profit_box = newBox;
+    console.log(`Next box is: ${profit_box}`);
+  }
+
+  newBox = prompt("BOX >> ");
+  if (newBox.startsWith("box")) {
+    unprofit_box = newBox;
+    console.log(`Next box is: ${unprofit_box}`);
+  } else if (newBox.startsWith("value_box")) {
+    profit_box = newBox;
     console.log(`Next box is: ${profit_box}`);
   }
 }
