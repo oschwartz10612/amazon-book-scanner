@@ -5,6 +5,8 @@ var player = require("play-sound")((opts = {}));
 const ISBNAuditer = require("isbn3");
 const util = require("util");
 const mysql = require("mysql");
+const delay = require('delay');
+
 
 let sellingPartner = new SellingPartnerAPI({
     region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
@@ -33,9 +35,14 @@ const db = makeDb({
 
 (async () => {
 
-    const data = await db.query('SELECT * from profitable_books');
+    const data = await db.query('SELECT * FROM profitable_books WHERE merchant_offer_count IS NULL AND ASIN IS NOT NULL LIMIT 250');
+    console.log(data.length);
+
+    var count = 0;
 
     data.forEach(async book => {
+
+        //await delay(100);
 
         var lowAmazon = null;
         var lowMerchant = null;
@@ -94,10 +101,16 @@ const db = makeDb({
             merchant_offer_count: numMerchant
         }, book.id]);
 
+        count += 1;
+
+        console.log(`${book.id} - ${count}`);
+        if (count == data.length) {
+            process.exit(0)
+        }
 
         //console.log(JSON.stringify(pricing, null, 2));
 
     });
-console.log('Done');
+//console.log('Done');
 
 })();
