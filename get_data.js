@@ -33,10 +33,15 @@ const db = makeDb({
 
 (async () => {
 
-    const data = await db.query('SELECT * from profitable_books LIMIT 1');
+    const data = await db.query('SELECT * from profitable_books');
 
     data.forEach(async book => {
 
+        var lowAmazon = null;
+        var lowMerchant = null;
+
+        var numAmazon = null;
+        var numMerchant = null;
 
         const pricing = await sellingPartner.callAPI({
             operation: "getItemOffers",
@@ -49,9 +54,50 @@ const db = makeDb({
             }
         });
 
-        console.log(JSON.stringify(pricing, null, 2));
+        if (typeof pricing.Summary.LowestPrices != undefined) {
+            pricing.Summary.LowestPrices.forEach(price => {
+                if (price.fulfillmentChannel == 'Merchant') {
+                    if (lowMerchant == null) {
+                        lowMerchant = price.LandedPrice.Amount
+                    }
+                } else if(price.fulfillmentChannel == 'Amazon') {
+                    if (lowAmazon == null) {
+                        lowAmazon = price.LandedPrice.Amount
+                    }
+                }
+            });  
+        }
+
+        pricing.Summary.NumberOfOffers.forEach(offer => {
+            if (offer.fulfillmentChannel == 'Merchant') {
+                if (numMerchant == null) {
+                    numMerchant = offer.OfferCount
+                }
+            } else if (offer.fulfillmentChannel == 'Amazon') {
+                if (numAmazon == null) {
+                    numAmazon = offer.OfferCount
+                } 
+            } 
+        });
+        
+
+        // console.log(lowMerchant);
+        // console.log(lowAmazon);
+        // console.log(numAmazon);
+        // console.log(numMerchant);
+        // console.log('----');
+
+        await db.query('UPDATE profitable_books SET ? WHERE id=?', [{
+            low_amazon: lowAmazon,
+            low_merchant: lowMerchant,
+            amazon_offer_count: numAmazon,
+            merchant_offer_count: numMerchant
+        }, book.id]);
+
+
+        //console.log(JSON.stringify(pricing, null, 2));
 
     });
-
+console.log('Done');
 
 })();
