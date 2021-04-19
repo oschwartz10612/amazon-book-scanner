@@ -35,7 +35,7 @@ const db = makeDb({
 
 (async () => {
 
-    const data = await db.query('SELECT * FROM profitable_books WHERE merchant_offer_count IS NULL AND ASIN IS NOT NULL LIMIT 250');
+    const data = await db.query('SELECT * FROM unprofitable_books WHERE merchant_offer_count IS NULL AND ASIN IS NOT NULL LIMIT 250');
     console.log(data.length);
 
     var count = 0;
@@ -61,7 +61,7 @@ const db = makeDb({
             }
         });
 
-        if (typeof pricing.Summary.LowestPrices != undefined) {
+        try {
             pricing.Summary.LowestPrices.forEach(price => {
                 if (price.fulfillmentChannel == 'Merchant') {
                     if (lowMerchant == null) {
@@ -73,33 +73,38 @@ const db = makeDb({
                     }
                 }
             });  
+
+            pricing.Summary.NumberOfOffers.forEach(offer => {
+                if (offer.fulfillmentChannel == 'Merchant') {
+                    if (numMerchant == null) {
+                        numMerchant = offer.OfferCount
+                    }
+                } else if (offer.fulfillmentChannel == 'Amazon') {
+                    if (numAmazon == null) {
+                        numAmazon = offer.OfferCount
+                    } 
+                } 
+            });
+            
+    
+            // console.log(lowMerchant);
+            // console.log(lowAmazon);
+            // console.log(numAmazon);
+            // console.log(numMerchant);
+            // console.log('----');
+    
+            await db.query('UPDATE unprofitable_books SET ? WHERE id=?', [{
+                low_amazon: lowAmazon,
+                low_merchant: lowMerchant,
+                amazon_offer_count: numAmazon,
+                merchant_offer_count: numMerchant
+            }, book.id]);
+
+        } catch {
+            console.log("Data not available");
         }
 
-        pricing.Summary.NumberOfOffers.forEach(offer => {
-            if (offer.fulfillmentChannel == 'Merchant') {
-                if (numMerchant == null) {
-                    numMerchant = offer.OfferCount
-                }
-            } else if (offer.fulfillmentChannel == 'Amazon') {
-                if (numAmazon == null) {
-                    numAmazon = offer.OfferCount
-                } 
-            } 
-        });
-        
 
-        // console.log(lowMerchant);
-        // console.log(lowAmazon);
-        // console.log(numAmazon);
-        // console.log(numMerchant);
-        // console.log('----');
-
-        await db.query('UPDATE profitable_books SET ? WHERE id=?', [{
-            low_amazon: lowAmazon,
-            low_merchant: lowMerchant,
-            amazon_offer_count: numAmazon,
-            merchant_offer_count: numMerchant
-        }, book.id]);
 
         count += 1;
 
