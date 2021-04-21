@@ -11,6 +11,7 @@
   "dependencies": {
     "amazon-sp-api": "^0.3.6",
     "clipboardy": "^2.3.0",
+    "console-table-printer": "^2.8.2",
     "delay": "^5.0.0",
     "dotenv": "^8.2.0",
     "isbn3": "^1.1.10",

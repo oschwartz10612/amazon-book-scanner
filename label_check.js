@@ -3,6 +3,7 @@ const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
 const playSound = require("./lib/playSound");
 const makeDb = require("./lib/db");
+const { printTable } = require('console-table-printer');
 
 let sellingPartner = new SellingPartnerAPI({
     region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
@@ -21,7 +22,7 @@ async function main() {
     if (FNSKU == 'stop') {
         process.exit(0);
     } else {
-        const data = await db.query('SELECT * from profitable_books WHERE FNSKU = ?', [FNSKU]);
+        const data = await db.query('SELECT box_id, title, ISBN from profitable_books WHERE FNSKU = ?', [FNSKU]);
         if (data.length > 1) {
             playSound('fail.mp3');
             console.log('More than 1 row!');
@@ -32,8 +33,10 @@ async function main() {
             return main();
             
         } else {
+
+            printTable(data);
+            playSound('success.mp3');
             while (true) {
-                playSound('success.mp3');
                 const ISBN = prompt('ISBN >> ');
                 if (ISBN == data[0].ISBN) {
                     playSound('success.mp3');
