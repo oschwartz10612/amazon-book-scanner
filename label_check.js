@@ -67,7 +67,7 @@ async function main() {
 main();
 
 function playSound(file) {
-    if(process.argv[0] == 'andriod') {
+    if(process.argv[2] == 'andriod') {
         exec(`play-audio assets/${file}`, (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
