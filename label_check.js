@@ -6,7 +6,7 @@ const ISBNAuditer = require("isbn3");
 const util = require("util");
 const mysql = require("mysql");
 const delay = require('delay');
-
+const { exec } = require("child_process");
 
 let sellingPartner = new SellingPartnerAPI({
     region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
@@ -67,7 +67,20 @@ async function main() {
 main();
 
 function playSound(file) {
-    player.play(`assets/${file}`, function (err) {
-      if (err) console.log(`Could not play audio: ${err}`);
-    });
+    if(process.argv[0] == 'andriod') {
+        exec(`play-audio assets/${file}`, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`error: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`);
+                return;
+            }
+        });
+    } else {
+        player.play(`assets/${file}`, function (err) {
+            if (err) console.log(`Could not play audio: ${err}`);
+          });
+    }
   }
