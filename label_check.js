@@ -1,29 +1,13 @@
 require("dotenv").config();
 const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
-var player = require("play-sound")((opts = {}));
-const ISBNAuditer = require("isbn3");
-const util = require("util");
-const mysql = require("mysql");
-const delay = require('delay');
-const { exec } = require("child_process");
+const playSound = require("./lib/playSound");
+const makeDb = require("./lib/db");
 
 let sellingPartner = new SellingPartnerAPI({
     region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
     refresh_token: process.env.REFRESH_TOKEN, // The refresh token of your app user
 });
-
-function makeDb(config) {
-    const connection = mysql.createConnection(config);
-    return {
-        query(sql, args) {
-            return util.promisify(connection.query).call(connection, sql, args);
-        },
-        close() {
-            return util.promisify(connection.end).call(connection);
-        },
-    };
-}
 
 const db = makeDb({
     host: process.env.MYSQL_DOMAIN,
@@ -49,6 +33,7 @@ async function main() {
             
         } else {
             while (true) {
+                playSound('success.mp3');
                 const ISBN = prompt('ISBN >> ');
                 if (ISBN == data[0].ISBN) {
                     playSound('success.mp3');
@@ -66,21 +51,3 @@ async function main() {
 
 main();
 
-function playSound(file) {
-    if(process.argv[2] == 'andriod') {
-        exec(`play-audio assets/${file}`, (error, stdout, stderr) => {
-            if (error) {
-                console.log(`error: ${error.message}`);
-                return;
-            }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`);
-                return;
-            }
-        });
-    } else {
-        player.play(`assets/${file}`, function (err) {
-            if (err) console.log(`Could not play audio: ${err}`);
-          });
-    }
-  }

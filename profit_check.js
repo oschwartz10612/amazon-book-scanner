@@ -1,10 +1,9 @@
 require("dotenv").config();
 const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
-var player = require("play-sound")((opts = {}));
 const ISBNAuditer = require("isbn3");
-const util = require("util");
-const mysql = require("mysql");
+const makeDb = require("./lib/db");
+const playSound = require("./lib/playSound");
 
 let sellingPartner = new SellingPartnerAPI({
   region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
@@ -14,18 +13,6 @@ let sellingPartner = new SellingPartnerAPI({
 var lastId = 0;
 var profit_box = "value_box0";
 var unprofit_box = "box0";
-
-function makeDb(config) {
-  const connection = mysql.createConnection(config);
-  return {
-    query(sql, args) {
-      return util.promisify(connection.query).call(connection, sql, args);
-    },
-    close() {
-      return util.promisify(connection.end).call(connection);
-    },
-  };
-}
 
 const db = makeDb({
   host: process.env.MYSQL_DOMAIN,
@@ -240,12 +227,6 @@ async function main() {
   }
 
   main();
-}
-
-function playSound(file) {
-  player.play(`assets/${file}`, function (err) {
-    if (err) console.log(`Could not play audio: ${err}`);
-  });
 }
 
 const median = (arr) => {
