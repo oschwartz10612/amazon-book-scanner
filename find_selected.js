@@ -21,13 +21,18 @@ async function main() {
     const ISBN = prompt('ISBN >> ');
     if (ISBN == 'stop') {
         process.exit(0);
-    } else {
-        const data = await db.query('SELECT box_id, title, kept from unprofitable_books WHERE kept = TRUE and ISBN = ?', [ISBN]);
-        if (data.length > 1) {
+    } else if(ISBN.startsWith("box")) {
+        const data = await db.query('SELECT box_id, title, kept FROM unprofitable_books WHERE kept = TRUE AND box_id = ?', [ISBN]);
+        if (data.length > 0) {
+            printTable(data);
+            playSound('success.mp3');
+        } else {
             playSound('fail.mp3');
-            console.log('More than 1 row!');
-            main();
-        } else if (data.length == 0) {
+        }
+        return main();
+    } else {
+        const data = await db.query('SELECT box_id, title, kept FROM unprofitable_books WHERE kept = TRUE AND ISBN = ?', [ISBN]);
+        if (data.length == 0) {
             playSound('fail.mp3');
             console.log('Not known ISBN...');
             return main();
