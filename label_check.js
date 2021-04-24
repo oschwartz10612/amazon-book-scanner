@@ -38,7 +38,9 @@ async function main() {
             playSound('success.mp3');
             while (true) {
                 const ISBN = prompt('ISBN >> ');
-                if (ISBN == data[0].ISBN) {
+                if(ISBN == 'stop') {
+                    break
+                } else if (ISBN == data[0].ISBN) {
                     playSound('success.mp3');
                     break
                 } else {
