@@ -185,7 +185,7 @@ async function main() {
       rank = "unknown"
     }
 
-    if (priceDifference > process.env.PRICE_THRESHOLD) {
+    if (priceDifference > process.env.PRICE_THRESHOLD && rank < 10000000 && rank != "unknown") {
       playSound("success.mp3");
 
       const condition = prompt("What is the condition? >> ");
