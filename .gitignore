@@ -5,4 +5,4 @@ test.js
 firestore.json
 cloud_sql_proxy
 Makefile
-assets/output.pdf
+output/
