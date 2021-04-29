@@ -10,75 +10,67 @@ var height = 0; // This will be computed based on the input stream
 
 var streaming = false;
 
-// The various HTML elements we need to configure or control. These
-// will be set by the startup() function.
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const startButton = document.getElementById("startButton");
 
-var video = null;
-var canvas = null;
-var photo = null;
-var startbutton = null;
+navigator.mediaDevices
+  .getUserMedia({
+    //video: { facingMode: { exact: "environment" } },
+    video: true,
+    audio: false
+  })
+  .then(function (stream) {
+    video.srcObject = stream;
+    video.play();
+  })
+  .catch(function (err) {
+    console.log("An error occurred: " + err);
+  });
 
-function startup() {
-  video = document.getElementById("video");
-  canvas = document.getElementById("canvas");
-  photo = document.getElementById("photo");
-  startbutton = document.getElementById("startbutton");
+video.addEventListener(
+  "canplay",
+  function (ev) {
+    if (!streaming) {
+      height = video.videoHeight / (video.videoWidth / width);
 
-  navigator.mediaDevices
-    .getUserMedia({ video: {facingMode:{exact:"environment"}}, audio: false })
-    .then(function (stream) {
-      video.srcObject = stream;
-      video.play();
-    })
-    .catch(function (err) {
-      console.log("An error occurred: " + err);
-    });
+      // Firefox currently has a bug where the height can't be read from
+      // the video, so we will make assumptions if this happens.
 
-  video.addEventListener(
-    "canplay",
-    function (ev) {
-      if (!streaming) {
-        height = video.videoHeight / (video.videoWidth / width);
-
-        // Firefox currently has a bug where the height can't be read from
-        // the video, so we will make assumptions if this happens.
-
-        if (isNaN(height)) {
-          height = width / (4 / 3);
-        }
-
-        video.setAttribute("width", width);
-        video.setAttribute("height", height);
-        canvas.setAttribute("width", width);
-        canvas.setAttribute("height", height);
-        streaming = true;
+      if (isNaN(height)) {
+        height = width / (4 / 3);
       }
-    },
-    false
-  );
 
-  startbutton.addEventListener(
-    "click",
-    function (ev) {
-      takepicture();
-      ev.preventDefault();
-    },
-    false
-  );
+      video.setAttribute("width", width);
+      video.setAttribute("height", height);
+      canvas.setAttribute("width", width);
+      canvas.setAttribute("height", height);
+      streaming = true;
+    }
+  },
+  false
+);
 
-  clearphoto();
-}
+startButton.addEventListener(
+  "click",
+  function (ev) {
+    takePicture();
+    ev.preventDefault();
+  },
+  false
+);
+
+clearPhoto();
 
 // Fill the photo with an indication that none has been
 // captured.
 
-function clearphoto() {
+function clearPhoto() {
   var context = canvas.getContext("2d");
   context.fillStyle = "#AAA";
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  var data = canvas.toDataURL("image/png");
-  photo.setAttribute("src", data);
+
 }
 
 // Capture a photo by fetching the current contents of the video
@@ -87,15 +79,12 @@ function clearphoto() {
 // drawing that to the screen, we can change its size and/or apply
 // other changes before drawing it.
 
-async function takepicture() {
+async function takePicture() {
   var context = canvas.getContext("2d");
   if (width && height) {
     canvas.width = width;
     canvas.height = height;
     context.drawImage(video, 0, 0, width, height);
-
-    var data = canvas.toDataURL("image/png");
-    photo.setAttribute("src", data);
 
     canvas.toBlob((blob) => {
       let fd = new FormData();
@@ -103,7 +92,7 @@ async function takepicture() {
 
       fetch("/image", {
         method: "POST",
-        body: fd
+        body: fd,
       })
         .then(function (response) {
           console.log("done");
@@ -114,10 +103,6 @@ async function takepicture() {
         });
     }, "image/png");
   } else {
-    clearphoto();
+    clearPhoto();
   }
 }
-
-// Set up our event listener to run the startup process
-// once loading is complete.
-window.addEventListener("load", startup, false);
