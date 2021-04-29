@@ -12,12 +12,13 @@
     />
   </head>
   <body>
-    <div class="camera">
       <video id="video">Video stream not available.</video>
-      <button id="startButton" class="btn btn-primary">Take photo</button>
-    </div>
 
-    <canvas id="canvas"></canvas>
+
+	<button id="startButton" class="btn btn-primary" onclick="takePicture()">Take photo</button>
+
+
+    <canvas id="canvas" style="overflow:auto"></canvas>
   </body>
 </html>
 <script src="capture.js"></script>
