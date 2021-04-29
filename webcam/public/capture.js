@@ -2,7 +2,7 @@
 // width to the value defined here, but the height will be
 // calculated based on the aspect ratio of the input stream.
 
-var width = 720; // We will scale the photo width to this
+var width = 1920; // We will scale the photo width to this
 var height = 0; // This will be computed based on the input stream
 
 // |streaming| indicates whether or not we're currently streaming
@@ -25,7 +25,7 @@ function startup() {
   startbutton = document.getElementById("startbutton");
 
   navigator.mediaDevices
-    .getUserMedia({ video: true, audio: false })
+    .getUserMedia({ video: {facingMode:{exact:"environment"}}, audio: false })
     .then(function (stream) {
       video.srcObject = stream;
       video.play();
@@ -101,12 +101,9 @@ async function takepicture() {
       let fd = new FormData();
       fd.append("image", blob, "image.png");
 
-      fetch("http://localhost:3200/image", {
+      fetch("/image", {
         method: "POST",
-        // headers: {
-        //     'Content-Type': 'application/json'
-        // },
-        body: fd,
+        body: fd
       })
         .then(function (response) {
           console.log("done");
