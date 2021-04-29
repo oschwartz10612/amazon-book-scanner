@@ -6,3 +6,4 @@ firestore.json
 cloud_sql_proxy
 Makefile
 output/
+webcam/uploads
