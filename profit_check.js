@@ -27,7 +27,7 @@ async function getStartingSKU() {
   );
   if (lastRow.length > 0) {
     profit_box = lastRow[0].box_id;
-    lastId = lastRow[0].id; 
+    lastId = lastRow[0].id;
   }
   lastRow = await db.query(
     "SELECT * FROM unprofitable_books ORDER BY id DESC LIMIT 0, 1"
@@ -37,46 +37,59 @@ async function getStartingSKU() {
   }
   console.log(`Value box is : ${profit_box}`);
   console.log(`Failure box is : ${unprofit_box}`);
-  main();
 }
 
 function getISBN() {
-    const ISBN = prompt("ISBN >> ", function (val) {
-        if (val == "stop") {
-          process.exit();
-        } else if (val.startsWith("box")) {
-            unprofit_box = val;
-            console.log(`Next box is: ${unprofit_box}`);
-            return true;
-        } else if (val.startsWith("value_box")) {
-            profit_box = val;
-            console.log(`Next box is: ${profit_box}`);
-            return true;
-        }
-        else if (
-          val != undefined &&
-          val != "" &&
-          ISBNAuditer.audit(val).validIsbn == true
-        ) {
-            return true;
-        }
-          
-        console.log("Please enter a valid ISBN...");
-        playSound("fail.mp3");
-      });
-      if (ISBN.startsWith("box") || ISBN.startsWith("value_box")) {
-        return getISBN();
-      } else {
-        return ISBN;
-      }
+  const ISBN = prompt("ISBN >> ", function (val) {
+    if (val == "stop") {
+      process.exit();
+    } else if (val.startsWith("box")) {
+      unprofit_box = val;
+      console.log(`Next box is: ${unprofit_box}`);
+      return true;
+    } else if (val.startsWith("value_box")) {
+      profit_box = val;
+      console.log(`Next box is: ${profit_box}`);
+      return true;
+    } else if (
+      val != undefined &&
+      val != "" &&
+      ISBNAuditer.audit(val).validIsbn == true
+    ) {
+      return true;
+    }
+
+    console.log("Please enter a valid ISBN...");
+    playSound("fail.mp3");
+  });
+  if (ISBN.startsWith("box") || ISBN.startsWith("value_box")) {
+    return getISBN();
+  } else {
+    return ISBN;
+  }
 }
 
-async function main() {
+function setBox(box) {
+  if (box.startsWith("box")) {
+    unprofit_box = box;
+    console.log(`Next box is: ${unprofit_box}`);
+  } else if (box.startsWith("value_box")) {
+    profit_box = box;
+    console.log(`Next box is: ${profit_box}`);
+  }
+}
+
+async function main(calledISBN) {
   var ASIN = "";
   var title = "";
   var rank = 0;
   var bestPrice = 0;
-  const ISBN = getISBN();
+  var ISBN = null;
+  if (calledISBN == undefined) {
+    ISBN = getISBN();
+  } else {
+    ISBN = calledISBN;
+  }
 
   //Get catalog item
   let books = await sellingPartner.callAPI({
@@ -93,8 +106,7 @@ async function main() {
       title = books.Items[0].AttributeSets[0].Title;
       const SalesRankings = books.Items[0].SalesRankings[0];
       rank = SalesRankings ? SalesRankings.Rank : undefined;
-   
-        
+
       var bestPricingData = await getCompetitivePricing([ASIN]);
       bestPrice = bestPricingData.bestPrice;
     } else {
@@ -119,7 +131,7 @@ async function main() {
         });
         ASIN = books.Items[choice].Identifiers.MarketplaceASIN.ASIN;
         title = books.Items[choice].AttributeSets[0].Title;
-        rank = books.Items[choice].SalesRankings[0].Rank
+        rank = books.Items[choice].SalesRankings[0].Rank;
         var bestPricingData = await getCompetitivePricing([ASIN]);
         bestPrice = bestPricingData.bestPrice;
       } else {
@@ -182,10 +194,14 @@ async function main() {
     console.log(`Price difference: ${priceDifference}`);
 
     if (rank == undefined) {
-      rank = "unknown"
+      rank = "unknown";
     }
 
-    if (priceDifference > process.env.PRICE_THRESHOLD && rank < 10000000 && rank != "unknown") {
+    if (
+      priceDifference > process.env.PRICE_THRESHOLD &&
+      rank < 10000000 &&
+      rank != "unknown"
+    ) {
       playSound("success.mp3");
 
       const condition = prompt("What is the condition? >> ");
@@ -203,30 +219,27 @@ async function main() {
         rank: rank,
       });
       lastId = insertedRow.insertId;
-
     } else {
-        await db.query("INSERT INTO unprofitable_books SET ?", {
-            box_id: unprofit_box,
-            ISBN: ISBN,
-            ASIN: ASIN,
-            title: title,
-            profit: priceDifference,
-            best_price: bestPrice,
-            fee: fee,
-            rank: rank
-          });
+      await db.query("INSERT INTO unprofitable_books SET ?", {
+        box_id: unprofit_box,
+        ISBN: ISBN,
+        ASIN: ASIN,
+        title: title,
+        profit: priceDifference,
+        best_price: bestPrice,
+        fee: fee,
+        rank: rank,
+      });
       playSound("fail.mp3");
     }
   } else {
-      playSound('fail.mp3');
-      await db.query("INSERT INTO unprofitable_books SET ?", {
-        box_id: unprofit_box,
-        ISBN: ISBN
-      });
+    playSound("fail.mp3");
+    await db.query("INSERT INTO unprofitable_books SET ?", {
+      box_id: unprofit_box,
+      ISBN: ISBN,
+    });
     console.warn("No item found!");
   }
-
-  main();
 }
 
 const median = (arr) => {
@@ -275,7 +288,7 @@ async function getCompetitivePricing(ASINS) {
     if (allPrices.length == 0) {
       console.error("No pricing data available, save for later?");
       playSound("attn.mp3");
-      main();
+      return;
     }
   }
 
@@ -323,3 +336,8 @@ async function getCompetitivePricing(ASINS) {
 }
 
 getStartingSKU();
+
+module.exports = {
+  profitCheck: main,
+  setBox: setBox
+};

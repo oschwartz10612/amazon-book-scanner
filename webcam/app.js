@@ -5,6 +5,7 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const tesseract = require("node-tesseract-ocr");
+const profit_check = require("../profit_check");
 
 var upload = multer({ dest: __dirname + "/uploads" });
 
@@ -12,9 +13,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(__dirname + "/public"));
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+app.get("/main", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "main.html"));
+});
+app.get("/image", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "image.html"));
+});
+
+app.post("/profit_check", (req, res) => {
+  profit_check.profitCheck(req.body.isbn);
+  res.sendStatus(200, 'OK');
+});
+
+app.post("/set_box", (req, res) => {
+  profit_check.setBox(req.body.box);
+  res.sendStatus(200, 'OK');
 });
 
 var type = upload.single("image");
@@ -47,16 +65,18 @@ async function OCR(path) {
     const text = await tesseract.recognize(path, config);
     console.log(text);
 
-    var ISBN = text.match(
+    const ISBNs = text.match(
       /(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}|97[89][0-9]{10}|(?=(?:[0-9]+[- ]){4})[- 0-9]{17})(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]/gm
     );
-    if (ISBN != null) {
+    if (ISBNs != null) {
+      const ISBN = ISBNs[0].replace(/\s|[-]|[ISBN]|[isbn]|[:]/g,'');
+
       console.log(ISBN);
+      profit_check.profitCheck(ISBN);
+
     } else {
       console.log('Need to look harder...');
     }
-
-
     
   } catch (error) {
     console.error(error.message);
