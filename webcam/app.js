@@ -42,19 +42,23 @@ app.listen(port, () => {
 const config = {
   lang: "eng",
 };
-function OCR(path) {
-  tesseract
-    .recognize(path, config)
-    .then((text) => {
-      console.log("Result:", text);
-      var isbn = text.match(
-        /^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/gm
-      );
-      console.log(
-        isbn[0].replace(/-/g, "").replace("ISBN", "").replace(" ", "")
-      );
-    })
-    .catch((error) => {
-      console.log(error.message);
-    });
+async function OCR(path) {
+  try {
+    const text = await tesseract.recognize(path, config);
+    console.log(text);
+
+    var ISBN = text.match(
+      /(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}|97[89][0-9]{10}|(?=(?:[0-9]+[- ]){4})[- 0-9]{17})(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]/gm
+    );
+    if (ISBN != null) {
+      console.log(ISBN);
+    } else {
+      console.log('Need to look harder...');
+    }
+
+
+    
+  } catch (error) {
+    console.error(error.message);
+  }
 }
