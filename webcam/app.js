@@ -1,5 +1,9 @@
-const express = require("express");
+
+const express = require('express');
 const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
 const port = process.env.PORT || 3200;
 const cors = require("cors");
 const multer = require("multer");
@@ -11,6 +15,7 @@ var upload = multer({ dest: __dirname + "/uploads" });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set('socketio', io);
 
 app.use(express.static(__dirname + "/public"));
 app.use(cors());
@@ -25,12 +30,13 @@ app.get("/image", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "image.html"));
 });
 
-app.post("/profit_check", (req, res) => {
-  profit_check.profitCheck(req.body.isbn);
-  res.sendStatus(200, 'OK');
+io.on('connection', socket => {
+  socket.on('isbn', async res => {
+    profit_check.profitCheck(req.body.isbn, socket);
+  });
 });
 
-app.post("/set_box", (req, res) => {
+app.post("/set_box", async (req, res) => {
   profit_check.setBox(req.body.box);
   res.sendStatus(200, 'OK');
 });
@@ -53,9 +59,7 @@ app.post("/image", type, (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+server.listen(port);
 
 const config = {
   lang: "eng",

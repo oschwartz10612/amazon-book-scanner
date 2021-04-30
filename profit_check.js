@@ -79,7 +79,7 @@ function setBox(box) {
   }
 }
 
-async function main(calledISBN) {
+async function main(calledISBN, socket) {
   var ASIN = "";
   var title = "";
   var rank = 0;
@@ -125,10 +125,19 @@ async function main(calledISBN) {
         for (let i = 0; i < books.Items.length; i++) {
           console.log(`[${i}] -> ${books.Items[i].AttributeSets[0].Title}`);
         }
-        const choice = prompt("Which title is correct? >> ", function (val) {
-          if (val <= books.Items.length && val >= 0) return true;
-          console.log("Please pick a number from the list...");
+        // const choice = prompt("Which title is correct? >> ", function (val) {
+        //   if (val <= books.Items.length && val >= 0) return true;
+        //   console.log("Please pick a number from the list...");
+        // });
+
+        socket.emit('prompt', 'Which title is correct?');
+
+        const choice = await new Promise(resolve => {
+          socket.once('promptRes', answer => {
+            resolve(answer);
+          });
         });
+
         ASIN = books.Items[choice].Identifiers.MarketplaceASIN.ASIN;
         title = books.Items[choice].AttributeSets[0].Title;
         rank = books.Items[choice].SalesRankings[0].Rank;
@@ -204,7 +213,15 @@ async function main(calledISBN) {
     ) {
       playSound("success.mp3");
 
-      const condition = prompt("What is the condition? >> ");
+      // const condition = prompt("What is the condition? >> ");
+
+      socket.emit('prompt', 'What is the condition?');
+
+      const condition = await new Promise(resolve => {
+        socket.once('promptRes', answer => {
+          resolve(answer);
+        });
+      });
 
       const insertedRow = await db.query("INSERT INTO profitable_books SET ?", {
         SKU: `${profit_box}_rb${lastId + 1}`,
@@ -299,13 +316,21 @@ async function getCompetitivePricing(ASINS) {
       console.log(`[${i}] -> ${validASINs[i]}`);
     }
 
-    const choice = prompt(
-      "Multiple ASINs! Which is correct? >> ",
-      function (val) {
-        if (val <= validASINs.length && val >= 0) return true;
-        console.log("Please pick a number from the list...");
-      }
-    );
+    // const choice = prompt(
+    //   "Multiple ASINs! Which is correct? >> ",
+    //   function (val) {
+    //     if (val <= validASINs.length && val >= 0) return true;
+    //     console.log("Please pick a number from the list...");
+    //   }
+    // );
+
+    socket.emit('prompt', 'Which title is correct?');
+
+    const choice = await new Promise(resolve => {
+      socket.once('promptRes', answer => {
+        resolve(answer);
+      });
+    });
 
     correctASIN = validASINs[choice];
   } else {
