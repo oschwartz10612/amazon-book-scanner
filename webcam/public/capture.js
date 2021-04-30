@@ -1,10 +1,19 @@
 const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
+const canvas = document.createElement("canvas");
+
+video.addEventListener('click', takePicture);
+
+var canVibrate = "vibrate" in navigator || "mozVibrate" in navigator;
+
 
 navigator.mediaDevices
   .getUserMedia({
-    //video: { facingMode: { exact: "environment" } },
-    video: true,
+    video: {
+      width: { ideal: 2048 },
+      height: { ideal: 1080 },
+      facingMode: "environment" 
+  },
+    //video: true,
     audio: false,
   })
   .then(function (stream) {
@@ -24,6 +33,9 @@ function clearPhoto() {
 }
 
 function takePicture() {
+  navigator.vibrate(100);
+
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   canvas
