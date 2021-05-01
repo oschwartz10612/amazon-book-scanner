@@ -9,7 +9,7 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const tesseract = require("node-tesseract-ocr");
-const profit_check = require("../profit_check");
+const profit_check = require("./functions/profit_check");
 
 io.on('connection', socket => {
   socket.on('isbn', async res => {
@@ -21,7 +21,6 @@ io.on('connection', socket => {
   });
 });
 
-
 var upload = multer({ dest: __dirname + "/uploads" });
 
 app.use(express.json());
@@ -32,13 +31,13 @@ app.use(express.static(__dirname + "/public"));
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 app.get("/main", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "main.html"));
+  res.sendFile(path.join(__dirname, "views", "main.html"));
 });
 app.get("/image", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "image.html"));
+  res.sendFile(path.join(__dirname, "views", "image.html"));
 });
 
 var type = upload.single("image");

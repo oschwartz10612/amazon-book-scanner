@@ -2,8 +2,8 @@ require("dotenv").config();
 const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
 const ISBNAuditer = require("isbn3");
-const makeDb = require("./lib/db");
-const playSound = require("./lib/playSound");
+const makeDb = require("../lib/db");
+const playSound = require("../lib/playSound");
 
 let sellingPartner = new SellingPartnerAPI({
   region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")

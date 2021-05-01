@@ -1,6 +1,6 @@
 require("dotenv").config();
 const SellingPartnerAPI = require("amazon-sp-api");
-const makeDb = require("./lib/db");
+const makeDb = require("../lib/db");
 
 let sellingPartner = new SellingPartnerAPI({
     region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")

@@ -1,8 +1,8 @@
 require("dotenv").config();
 const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
-const playSound = require("./lib/playSound");
-const makeDb = require("./lib/db");
+const playSound = require("../lib/playSound");
+const makeDb = require("../lib/db");
 const { printTable } = require('console-table-printer');
 
 let sellingPartner = new SellingPartnerAPI({
