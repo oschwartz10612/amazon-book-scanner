@@ -12,12 +12,15 @@ const tesseract = require("node-tesseract-ocr");
 const profit_check = require("./functions/profit_check");
 
 io.on('connection', socket => {
-  socket.on('isbn', async res => {
-    profit_check.profitCheck(req.body.isbn, socket);
+  socket.emit('fail_box_update', profit_check.getUnprofitBox());
+  socket.emit('success_box_update', profit_check.getProfitBox());
+
+  socket.on('isbn', async req => {
+    profit_check.profitCheck(req, socket);
   });
 
-  socket.on('set_box', async res => {
-    profit_check.setBox(res);
+  socket.on('set_box', async req => {
+    profit_check.setBox(req, socket);
   });
 });
 

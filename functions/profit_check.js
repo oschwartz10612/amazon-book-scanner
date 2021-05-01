@@ -69,13 +69,17 @@ function getISBN() {
   }
 }
 
-function setBox(box) {
+function setBox(box, socket) {
   if (box.startsWith("box")) {
     unprofit_box = box;
+    socket.emit('fail_box_update', unprofit_box);
     console.log(`Next box is: ${unprofit_box}`);
   } else if (box.startsWith("value_box")) {
     profit_box = box;
+    socket.emit('success_box_update', profit_box);
     console.log(`Next box is: ${profit_box}`);
+  } else {
+    playSound('fail.mp3');
   }
 }
 
@@ -362,7 +366,17 @@ async function getCompetitivePricing(ASINS) {
 
 getStartingSKU();
 
+function getUnprofitBox() {
+  return unprofit_box;
+}
+
+function getProfitBox() {
+  return profit_box;
+}
+
 module.exports = {
   profitCheck: main,
-  setBox: setBox
+  setBox: setBox,
+  getUnprofitBox: getUnprofitBox,
+  getProfitBox: getProfitBox
 };

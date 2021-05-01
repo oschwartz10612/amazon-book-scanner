@@ -13,10 +13,28 @@
     />
   </head>
   <body>
-    <p>ISBN:</p>
-    <input type="text" id="barcode" />
-    <p>Box:</p>
-    <input type="text" id="box" />
+    <div class="container mt-5">
+
+        <div class="jumbotron">
+            <div class="alert alert-success" role="alert" id="success_box">
+        
+            </div>
+            <div class="alert alert-danger" role="alert" id="fail_box">
+              
+            </div>
+      
+            <div class="input-group mt-4">
+              <span class="input-group-text">ISBN</span>
+              <input type="text" class="form-control" id="barcode" />
+            </div>
+      
+            <div class="input-group mt-4">
+              <span class="input-group-text">Box ID</span>
+              <input type="text" class="form-control" id="box" />
+            </div>
+          </div>
+        </div>
+
   </body>
 </html>
 
