@@ -11,6 +11,17 @@ const path = require("path");
 const tesseract = require("node-tesseract-ocr");
 const profit_check = require("../profit_check");
 
+io.on('connection', socket => {
+  socket.on('isbn', async res => {
+    profit_check.profitCheck(req.body.isbn, socket);
+  });
+
+  socket.on('set_box', async res => {
+    profit_check.setBox(res);
+  });
+});
+
+
 var upload = multer({ dest: __dirname + "/uploads" });
 
 app.use(express.json());
@@ -28,17 +39,6 @@ app.get("/main", (req, res) => {
 });
 app.get("/image", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "image.html"));
-});
-
-io.on('connection', socket => {
-  socket.on('isbn', async res => {
-    profit_check.profitCheck(req.body.isbn, socket);
-  });
-});
-
-app.post("/set_box", async (req, res) => {
-  profit_check.setBox(req.body.box);
-  res.sendStatus(200, 'OK');
 });
 
 var type = upload.single("image");
