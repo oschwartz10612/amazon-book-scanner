@@ -11,9 +11,13 @@ const path = require("path");
 const tesseract = require("node-tesseract-ocr");
 const profit_check = require("./functions/profit_check");
 
+var globalSocket = null;
+
 io.on('connection', socket => {
   socket.emit('fail_box_update', profit_check.getUnprofitBox());
   socket.emit('success_box_update', profit_check.getProfitBox());
+
+  globalSocket = socket;
 
   socket.on('isbn', async req => {
     profit_check.profitCheck(req, socket);
@@ -78,7 +82,7 @@ async function OCR(path) {
       const ISBN = ISBNs[0].replace(/\s|[-]|[ISBN]|[isbn]|[:]/g,'');
 
       console.log(ISBN);
-      profit_check.profitCheck(ISBN);
+      profit_check.profitCheck(ISBN, globalSocket);
 
     } else {
       console.log('Need to look harder...');
