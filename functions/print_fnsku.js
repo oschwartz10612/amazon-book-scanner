@@ -81,13 +81,13 @@ async function printPage() {
 
     doc.font('./assets/LibreBarcode128Text-Regular.ttf').fontSize(44);
 
-    doc.text(reverseToPrint[0], 104 - (doc.widthOfString(reverseToPrint[0]) / 2), (72 - (doc.heightOfString(reverseToPrint[0]) / 2)) * (index*2), {
+    doc.text(reverseToPrint[0], 104 - (doc.widthOfString(reverseToPrint[0]) / 2), ((72*index) - (doc.heightOfString(reverseToPrint[0]) / 2)), {
         width: doc.page.width
     });
-    doc.text(reverseToPrint[1], 304 - (doc.widthOfString(reverseToPrint[1]) / 2), (72 - (doc.heightOfString(reverseToPrint[1]) / 2)) * (index*2), {
+    doc.text(reverseToPrint[1], 304 - (doc.widthOfString(reverseToPrint[1]) / 2), ((72*index) - (doc.heightOfString(reverseToPrint[1]) / 2)), {
         width: doc.page.width
     });
-    doc.text(reverseToPrint[2], 504 - (doc.widthOfString(reverseToPrint[2]) / 2), (72 - (doc.heightOfString(reverseToPrint[2]) / 2)) * (index*2), {
+    doc.text(reverseToPrint[2], 504 - (doc.widthOfString(reverseToPrint[2]) / 2), ((72*index) - (doc.heightOfString(reverseToPrint[2]) / 2)), {
         width: doc.page.width
     });
 
