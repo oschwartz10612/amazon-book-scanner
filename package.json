@@ -11,6 +11,7 @@
   "dependencies": {
     "amazon-sp-api": "^0.3.6",
     "clipboardy": "^2.3.0",
+    "code-128-encoder": "^3.1.1",
     "console-table-printer": "^2.8.2",
     "cors": "^2.8.5",
     "delay": "^5.0.0",
