@@ -1,11 +1,12 @@
 require("dotenv").config();
 const SellingPartnerAPI = require("amazon-sp-api");
 const makeDb = require("../lib/db");
+const { printTable } = require('console-table-printer');
 
 let sellingPartner = new SellingPartnerAPI({
     region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
     refresh_token: process.env.REFRESH_TOKEN, // The refresh token of your app user
-});
+}); 
 
 const db = makeDb({
     host: process.env.MYSQL_DOMAIN,
@@ -14,10 +15,16 @@ const db = makeDb({
     database: process.env.MYSQL_DATABASE,
 });
 
+var updateDatabase = 'unprofitable_books';
+
 (async () => {
 
-    const data = await db.query('SELECT * FROM unprofitable_books WHERE merchant_offer_count IS NULL AND ASIN IS NOT NULL LIMIT 250');
+    const data = await db.query(`SELECT id, title, ASIN FROM ${updateDatabase} WHERE merchant_offer_count IS NULL AND ASIN IS NOT NULL LIMIT 180`);
     console.log(data.length);
+
+    if (data.length < 10) {
+        printTable(data);
+    }
 
     var count = 0;
 
@@ -74,7 +81,7 @@ const db = makeDb({
             // console.log(numMerchant);
             // console.log('----');
     
-            await db.query('UPDATE unprofitable_books SET ? WHERE id=?', [{
+            await db.query(`UPDATE ${updateDatabase} SET ? WHERE id=?`, [{
                 low_amazon: lowAmazon,
                 low_merchant: lowMerchant,
                 amazon_offer_count: numAmazon,

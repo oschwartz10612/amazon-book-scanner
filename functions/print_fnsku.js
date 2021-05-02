@@ -71,7 +71,7 @@ async function printPage() {
 
     const id = makeid(5);
     const doc = new PDFDocument();
-    var pdfStream = fs.createWriteStream(path.join(__dirname, `/output/output${id}.pdf`));
+    var pdfStream = fs.createWriteStream(path.join(__dirname, `../output/output${id}.pdf`));
 
     doc.font('./assets/LibreBarcode128Text-Regular.ttf').fontSize(44);
 
@@ -93,7 +93,7 @@ async function printPage() {
     console.log(`Waiting for pdf page ${page}`);
     pdfStream.addListener('finish', () => {
         console.log(`Printing pdf page ${page}`);
-        await ptp.print(path.join(__dirname, `/output/output${id}.pdf`), { printer: 'hp_LaserJet_4200' });
+        await ptp.print(path.join(__dirname, `../output/output${id}.pdf`), { printer: 'hp_LaserJet_4200' });
         main();
     });
 

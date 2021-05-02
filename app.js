@@ -9,7 +9,8 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const tesseract = require("node-tesseract-ocr");
-const profit_check = require("./functions/profit_check");
+const profit_check = require("./lib/profit_check");
+const playSound = require('./lib/playSound');
 
 var globalSocket = null;
 
@@ -86,6 +87,7 @@ async function OCR(path) {
 
     } else {
       console.log('Need to look harder...');
+      playSound('fail.mp3');
     }
     
   } catch (error) {
