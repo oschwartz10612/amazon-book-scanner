@@ -6,6 +6,10 @@ const failBox = document.getElementById('fail_box');
 
 const socket = io();
 
+const failSound = new Audio("audio/fail.mp3");
+const successSound = new Audio("audio/success.mp3");
+const attentionSound = new Audio("audio/attn.mp3");
+
 socket.on('prompt', data => {
     var res = prompt(data);
     console.log(res);
@@ -19,6 +23,17 @@ socket.on('fail_box_update', text => {
 socket.on('success_box_update', text => {
   successBox.innerHTML = text;
 });
+
+socket.on('fail_sound', () => {
+  failSound.play();
+});
+socket.on('success_sound', () => {
+  successSound.play();
+});
+socket.on('attn_sound', () => {
+  attentionSound.play();
+});
+
 
 isbn.addEventListener('keyup', event => {
     if (event.keyCode === 13) {
