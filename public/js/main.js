@@ -4,6 +4,7 @@ const box = document.getElementById("box");
 const successBox = document.getElementById("success_box");
 const failBox = document.getElementById("fail_box");
 const prompts = document.getElementById("prompts");
+const logs = document.getElementById("logs");
 
 const socket = io();
 
@@ -49,6 +50,10 @@ socket.on("fail_box_update", (text) => {
   failBox.innerHTML = text;
 });
 
+socket.on("logs", (text) => {
+  logs.innerHTML += `<p>${text}</p>`;
+});
+
 socket.on("success_box_update", (text) => {
   successBox.innerHTML = text;
 });
@@ -68,6 +73,7 @@ isbn.addEventListener("keyup", (event) => {
     console.log(isbn.value);
     socket.emit("isbn", isbn.value);
     isbn.value = "";
+    logs.innerHTML = '';
   }
 });
 
