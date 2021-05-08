@@ -14,30 +14,28 @@
   </head>
   <body>
     <div class="container mt-5">
+      <div class="alert alert-success" role="alert" id="success_box"></div>
+      <div class="alert alert-danger" role="alert" id="fail_box"></div>
 
-        <div class="jumbotron">
-            <div class="alert alert-success" role="alert" id="success_box">
-        
-            </div>
-            <div class="alert alert-danger" role="alert" id="fail_box">
-              
-            </div>
-      
-            <div class="input-group mt-4">
-              <span class="input-group-text">ISBN</span>
-              <input type="text" class="form-control" id="barcode" />
-            </div>
-      
-            <div class="input-group mt-4">
-              <span class="input-group-text">Box ID</span>
-              <input type="text" class="form-control" id="box" />
-            </div>
-          </div>
-        </div>
+      <div class="input-group mt-4">
+        <span class="input-group-text">ISBN</span>
+        <input type="text" class="form-control" id="barcode" />
+      </div>
 
+      <div class="input-group mt-4">
+        <span class="input-group-text">Box ID</span>
+        <input type="text" class="form-control" id="box" />
+      </div>
+      <div id="prompts" class="mt-4"></div>
+    </div>
   </body>
 </html>
 
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+  integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+  crossorigin="anonymous"
+></script>
 <script
   src="https://cdn.socket.io/3.1.3/socket.io.min.js"
   integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
