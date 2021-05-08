@@ -44,6 +44,7 @@ socket.on("prompt", (data) => {
 function promptRes(index) {
   socket.emit('promptRes', index);
   prompts.innerHTML = '';
+  isbn.focus();
 }
 
 socket.on("fail_box_update", (text) => {
