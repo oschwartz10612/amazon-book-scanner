@@ -12,9 +12,6 @@ const successSound = new Audio("audio/success.mp3");
 const attentionSound = new Audio("audio/attn.mp3");
 
 socket.on("prompt", (data) => {
-  // var res = prompt(data);
-  // console.log(res);
-  // socket.emit('promptRes', res);
 
   const question = data.shift();
   console.log(question);
@@ -27,7 +24,7 @@ socket.on("prompt", (data) => {
         {{#each options}}
 
         <div class="col">
-          <div class="card" style="width: 18rem">
+          <div class="card" style="">
             <div class="card-body">
               <h5 class="card-title">{{this}}</h5>
               <button class="btn btn-primary" onclick="promptRes({{@index}});">Select</button>
