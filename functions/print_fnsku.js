@@ -10,6 +10,8 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 const delay = require('delay');
+var Encoder = require("code-128-encoder")
+var encoder= new Encoder()
 
 let sellingPartner = new SellingPartnerAPI({
     region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
@@ -79,15 +81,18 @@ async function printPage() {
     var pdfStream = fs.createWriteStream(path.join(__dirname, `../output/output${id}.pdf`));
     const reverseToPrint = toPrint.reverse();
 
-    doc.font('./assets/LibreBarcode128Text-Regular.ttf').fontSize(44);
+    doc.font('./assets/LibreBarcode128Text-Regular.ttf').fontSize(34);
+    const string1 = encoder.encode(reverseToPrint[0]);
+    const string2 = encoder.encode(reverseToPrint[0]);
+    const string3 = encoder.encode(reverseToPrint[0]);
 
-    doc.text(reverseToPrint[0], 104 - (doc.widthOfString(reverseToPrint[0]) / 2), ((72*index) - (doc.heightOfString(reverseToPrint[0]) / 2)), {
+    doc.text(string1, 104 - (doc.widthOfString(string1) / 2), ((72*index) - (doc.heightOfString(string1) / 2)), {
         width: doc.page.width
     });
-    doc.text(reverseToPrint[1], 304 - (doc.widthOfString(reverseToPrint[1]) / 2), ((72*index) - (doc.heightOfString(reverseToPrint[1]) / 2)), {
+    doc.text(string2, 304 - (doc.widthOfString(string2) / 2), ((72*index) - (doc.heightOfString(string2) / 2)), {
         width: doc.page.width
     });
-    doc.text(reverseToPrint[2], 504 - (doc.widthOfString(reverseToPrint[2]) / 2), ((72*index) - (doc.heightOfString(reverseToPrint[2]) / 2)), {
+    doc.text(string3, 504 - (doc.widthOfString(string3) / 2), ((72*index) - (doc.heightOfString(string3) / 2)), {
         width: doc.page.width
     });
 
