@@ -30,7 +30,7 @@ socket.on("prompt", (data) => {
           <div class="card" style="width: 18rem">
             <div class="card-body">
               <h5 class="card-title">{{this}}</h5>
-              <button class="btn btn-primary" onclick="promptRes({{@index}});">Go somewhere</button>
+              <button class="btn btn-primary" onclick="promptRes({{@index}});">Select</button>
             </div>
           </div>
         </div>
