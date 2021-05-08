@@ -38,7 +38,7 @@ async function main() {
         console.log(`New mail box: ${mail_box_id}`);
         main();
     } else {
-        const data = await db.query('UPDATE profitable_books SET mail_box_id = ? WHERE FNSKU = ?', [mail_box_id,FNSKU]);
+        const data = await db.query('UPDATE profitable_books SET mail_box_id = ? WHERE FNSKU = ? AND mail_box_id IS NULL', [mail_box_id,FNSKU]);
         if (data.length > 1) {
             console.log('More than 1 row!');
             process.exit(0);

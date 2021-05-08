@@ -36,10 +36,11 @@ async function main() {
     if (ISBN == 'stop') {
         process.exit(0);
     } else {
-        const data = await db.query('SELECT id, title, FNSKU from profitable_books WHERE ISBN = ? AND FNSKU IS NOT NULL', [ISBN]);
+        const data = await db.query('SELECT id, title, FNSKU from profitable_books WHERE ISBN = ? AND FNSKU IS NOT NULL AND mail_box_id IS NULL', [ISBN]);
         if (data.length > 1) {
             playSound('fail.mp3');
             console.log('More than 1 row!');
+            printTable(data);
             return main();
         } else if (data.length == 0) {
             playSound('fail.mp3');
@@ -83,8 +84,8 @@ async function printPage() {
 
     doc.font('./assets/LibreBarcode128Text-Regular.ttf').fontSize(34);
     const string1 = encoder.encode(reverseToPrint[0]);
-    const string2 = encoder.encode(reverseToPrint[0]);
-    const string3 = encoder.encode(reverseToPrint[0]);
+    const string2 = encoder.encode(reverseToPrint[1]);
+    const string3 = encoder.encode(reverseToPrint[2]);
 
     doc.text(string1, 104 - (doc.widthOfString(string1) / 2), ((72*index) - (doc.heightOfString(string1) / 2)), {
         width: doc.page.width
