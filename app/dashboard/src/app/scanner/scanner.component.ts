@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { map } from 'rxjs/operators';
+import { SoundService } from '../sound.service';
 
 @Component({
   selector: 'app-scanner',
@@ -11,7 +12,7 @@ import { map } from 'rxjs/operators';
 export class ScannerComponent implements OnInit {
   @ViewChild('mainInput') input: ElementRef;
 
-  constructor(private socket: Socket) {}
+  constructor(private socket: Socket, private sound: SoundService) {}
 
   valuePrefix = 'value_box';
   failPrefix = 'box';

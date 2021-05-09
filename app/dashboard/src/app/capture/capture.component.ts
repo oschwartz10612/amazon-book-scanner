@@ -54,7 +54,7 @@ export class CaptureComponent implements OnInit {
       let fd = new FormData();
       fd.append('image', blob, 'image.png');
 
-      fetch('http://localhost:3200/image', {
+      fetch('/image', {
         method: 'POST',
         body: fd,
       })
