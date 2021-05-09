@@ -55,6 +55,8 @@ export class ScannerComponent implements OnInit {
   }
 
   promptRes(index: number) {
+    console.log(index);
+    
     this.socket.emit('promptRes', index);
     this.question = null;
     this.input.nativeElement.focus();
