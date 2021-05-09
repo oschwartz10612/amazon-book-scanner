@@ -1,16 +1,43 @@
 <div class="container mt-5">
-    <div class="alert alert-success" role="alert" id="success_box"></div>
-    <div class="alert alert-danger" role="alert" id="fail_box"></div>
-  
-    <div class="input-group mt-4">
-      <span class="input-group-text">ISBN</span>
-      <input type="text" class="form-control" (keydown.enter)="onIsbnKeydown($event)" />
+    <div class="alert alert-success" role="alert" id="success_box">
+      {{ currentValueBox }}
+    </div>
+    <div class="alert alert-danger" role="alert" id="fail_box">
+      {{ currentFailBox }}
     </div>
   
     <div class="input-group mt-4">
-      <span class="input-group-text">Box ID</span>
-      <input type="text" class="form-control" id="box" />
+      <span class="input-group-text">ISBN/Box ID</span>
+      <input
+        type="text"
+        class="form-control"
+        (keydown.enter)="onInputKeydown($event)"
+        #mainInput
+      />
     </div>
-    <div id="logs" class="logs mt-4"></div>
-    <div id="prompts" class="mt-4"></div>
+  
+    <div id="logs" class="logs mt-4">
+        <ng-container *ngFor="let text of logData">
+            <p>{{text}}</p>
+        </ng-container>
+    </div>
+    <div id="prompts" class="mt-4" *ngIf="question">
+      <h3>{{ question }}</h3>
+  
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        <ng-container *ngFor="let option of options; let i = index">
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">{{ option }}</h5>
+                <button class="btn btn-primary" (onclick)="promptRes(i)">
+                  Select
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
   </div>
+  
