@@ -2,6 +2,9 @@
 # https://hub.docker.com/_/node
 FROM node:12-slim
 
+RUN apt-get update -qq 
+RUN apt-get install -qq tesseract-ocr libtesseract-dev libleptonica-dev
+
 # Create and change to the app directory.
 WORKDIR /usr/src/app
 # Copy local code to the container image.

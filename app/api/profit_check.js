@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: '../../.env' });
 const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
 const ISBNAuditer = require("isbn3");

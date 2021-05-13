@@ -24,8 +24,6 @@ io.on('connection', socket => {
   socket.emit('fail_box_update', profit_check.getUnprofitBox());
   socket.emit('success_box_update', profit_check.getProfitBox());
 
-  globalSocket = socket;
-
   socket.on('isbn', async req => {
     profit_check.profitCheck(req, socket);
   });
@@ -56,6 +54,8 @@ app.post("/image", type, (req, res) => {
     });
   } else {
     console.log("file received");
+    globalSocket.emit('refresh_logs');
+    globalSocket.emit('logs', 'File received');
 
     OCR(req.file.path);
 

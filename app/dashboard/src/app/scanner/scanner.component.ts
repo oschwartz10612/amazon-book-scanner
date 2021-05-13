@@ -26,13 +26,15 @@ export class ScannerComponent implements OnInit {
     this.socket.on('logs', (text: string) => {
       this.logData.push(text);
       console.log(text);
-      
     });
     this.socket.on("fail_box_update", (text: string) => {
       this.currentFailBox = text;
     });
     this.socket.on("success_box_update", (text: string) => {
       this.currentValueBox = text;
+    });
+    this.socket.on("refresh_logs", () => {
+      this.logData = [];
     });
 
     this.socket.on("prompt", (data) => {
