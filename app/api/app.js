@@ -9,12 +9,14 @@ const io = require('socket.io')(server, {
   }
 });
 
-const port = process.env.PORT || 3200;
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const tesseract = require("node-tesseract-ocr");
 const profit_check = require("./profit_check");
+
+const PORT = process.env.PORT || 3200;
+const HOST = "0.0.0.0";
 
 var globalSocket = null;
 
@@ -31,6 +33,10 @@ io.on('connection', socket => {
   socket.on('set_box', async req => {
     profit_check.setBox(req, socket);
   });
+
+  socket.on('id_global', async req => {
+    globalSocket = socket;
+  });
 });
 
 var upload = multer({ dest: __dirname + "/uploads" });
@@ -39,18 +45,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('socketio', io);
 
-app.use(express.static(__dirname + "/public"));
 app.use(cors());
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "index.html"));
-});
-app.get("/main", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "main.html"));
-});
-app.get("/image", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "image.html"));
-});
 
 var type = upload.single("image");
 app.post("/image", type, (req, res) => {
@@ -70,7 +65,14 @@ app.post("/image", type, (req, res) => {
   }
 });
 
-server.listen(port);
+app.get('*.*', express.static(`${__dirname}/../dashboard/dist/app`));
+
+app.all('*', function (req, res) {
+    res.status(200).sendFile(`/`, {root: `${__dirname}/../dashboard/dist/app`});
+});
+
+server.listen(PORT, HOST);
+console.log(`Server listening on port ${PORT} at ${HOST}`);
 
 const config = {
   lang: "eng",
@@ -79,6 +81,7 @@ async function OCR(path) {
   try {
     const text = await tesseract.recognize(path, config);
     console.log(text);
+    globalSocket.emit('logs', text);
 
     const ISBNs = text.match(
       /(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}|97[89][0-9]{10}|(?=(?:[0-9]+[- ]){4})[- 0-9]{17})(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]/gm
@@ -87,10 +90,13 @@ async function OCR(path) {
       const ISBN = ISBNs[0].replace(/\s|[-]|[ISBN]|[isbn]|[:]/g,'');
 
       console.log(ISBN);
+      globalSocket.emit('logs', ISBN);
       profit_check.profitCheck(ISBN, globalSocket);
 
     } else {
       console.log('Need to look harder...');
+      globalSocket.emit('logs', "Need to look harder...");
+
       globalSocket.emit('fail_sound');
     }
     
