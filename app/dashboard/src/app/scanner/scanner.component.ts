@@ -35,12 +35,12 @@ export class ScannerComponent implements OnInit {
       this.currentValueBox = text;
     });
 
-
     this.socket.on("prompt", (data) => {
       this.question = data.shift();
       this.options = data;
     });
 
+    this.socket.emit('id_global');
   }
 
   promptRes(index: number) {

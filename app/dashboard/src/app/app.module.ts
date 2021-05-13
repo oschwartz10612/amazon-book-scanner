@@ -7,8 +7,9 @@ import { AppComponent } from './app.component';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { ScannerComponent } from './scanner/scanner.component';
 import { CaptureComponent } from './capture/capture.component';
-const config: SocketIoConfig = { url: '/', options: {} };
 
+const options = {} //{ autoConnect : false };
+const config: SocketIoConfig = { url: '/', options: options };
 
 @NgModule({
   declarations: [
