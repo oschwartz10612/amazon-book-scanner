@@ -1,26 +1,12 @@
 require("dotenv").config({ path: '../../.env' });
-const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
 const ISBNAuditer = require("isbn3");
-const makeDb = require("./db");
-
-let sellingPartner = new SellingPartnerAPI({
-  region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
-  refresh_token: process.env.REFRESH_TOKEN, // The refresh token of your app user
-});
+const db = require('./db');
+const sellingPartner = require('./sp');
 
 var lastId = 0;
 var profit_box = "value_box0";
 var unprofit_box = "box0";
-
-const dbSocketPath = process.env.DB_SOCKET_PATH || '/cloudsql';
-const db = makeDb({
-  //host: process.env.MYSQL_DOMAIN,
-  socketPath: `${dbSocketPath}/${process.env.CLOUD_SQL_CONNECTION_NAME}`,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASS,
-  database: process.env.MYSQL_DATABASE,
-});
 
 async function getStartingSKU() {
   var lastRow = await db.query(
@@ -501,5 +487,5 @@ module.exports = {
   profitCheck: main,
   setBox: setBox,
   getUnprofitBox: getUnprofitBox,
-  getProfitBox: getProfitBox,
+  getProfitBox: getProfitBox
 };

@@ -2,7 +2,7 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 proxy: 
-	./cloud_sql_proxy -dir=${DB_SOCKET_PATH} --instances=${CLOUD_SQL_CONNECTION_NAME} --credential_file=${GOOGLE_APPLICATION_CREDENTIALS}
+	./cloud_sql_proxy -dir=${DB_SOCKET_PATH_MAKE} --instances=${CLOUD_SQL_CONNECTION_NAME} --credential_file=${GOOGLE_APPLICATION_CREDENTIALS}
 
 build:
 	gcloud builds submit --tag gcr.io/${PROJECT_ID}/amazon_api

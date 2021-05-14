@@ -5,6 +5,31 @@
     <div class="alert alert-danger" role="alert" id="fail_box">
       {{ currentFailBox }}
     </div>
+
+
+
+    <div class="jumbotron">
+      <input type="checkbox" class="mr-2" id="btncheck1" autocomplete="off" (click)="usePrinter()">
+      <label class="" for="btncheck1">Checkbox 1</label>
+      <div class="input-group mt-4">
+        <span class="input-group-text">Index</span>
+        <input
+          type="text"
+          class="form-control"
+          #index
+        />
+      </div>
+      <div class="input-group mt-4">
+        <span class="input-group-text">Page</span>
+        <input
+          type="text"
+          class="form-control"
+          #page
+        />
+      </div>
+      <button class="btn btn-primary" (click)="setPrintVals()">Save</button>
+    </div>
+
   
     <div class="input-group mt-4">
       <span class="input-group-text">ISBN/Box ID</span>
@@ -15,6 +40,7 @@
         #mainInput
       />
     </div>
+
   
     <div id="logs" class="logs mt-4">
         <ng-container *ngFor="let text of logData">

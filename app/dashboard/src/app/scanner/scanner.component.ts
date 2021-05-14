@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { map } from 'rxjs/operators';
 import { SoundService } from '../sound.service';
+import printJS from 'print-js';
 
 @Component({
   selector: 'app-scanner',
@@ -11,6 +12,8 @@ import { SoundService } from '../sound.service';
 })
 export class ScannerComponent implements OnInit {
   @ViewChild('mainInput') input: ElementRef;
+  @ViewChild('index') index: ElementRef;
+  @ViewChild('page') page: ElementRef;
 
   constructor(private socket: Socket, private sound: SoundService) {}
 
@@ -21,6 +24,7 @@ export class ScannerComponent implements OnInit {
   currentValueBox: string
   question: string;
   options: Array<string>;
+  isPrinter = false;
 
   ngOnInit(): void {
     this.socket.on('logs', (text: string) => {
@@ -42,6 +46,15 @@ export class ScannerComponent implements OnInit {
       this.options = data;
     });
 
+    this.socket.on("print_id", (data) => {
+      printJS(`output/output${data}.pdf`)
+    });
+
+    this.socket.on("print_fnsku_vals_update", (data) => {
+      this.index.nativeElement.value = data.index;
+      this.page.nativeElement.value = data.page;
+    });
+
     this.socket.emit('id_global');
   }
 
@@ -55,12 +68,26 @@ export class ScannerComponent implements OnInit {
 
   onInputKeydown(event: any) {
     const val = event.target.value;
-    if (val.startsWith(this.valuePrefix) || val.startsWith(this.failPrefix)) {
-      this.socket.emit('set_box', val);
+
+    if (this.isPrinter) {
+      this.socket.emit('print_fnsku', val);
     } else {
-      this.socket.emit('isbn', val);
+      if (val.startsWith(this.valuePrefix) || val.startsWith(this.failPrefix)) {
+        this.socket.emit('set_box', val);
+      } else {
+        this.socket.emit('isbn', val);
+      }
+      event.target.value = '';
     }
-    event.target.value = '';
+
     this.logData = [];
+  }
+
+  usePrinter() {
+    this.isPrinter = !this.isPrinter;
+  }
+
+  setPrintVals() {
+    this.socket.emit('print_fnsku_vals', {index: this.index.nativeElement.value, page: this.page.nativeElement.value});
   }
 }

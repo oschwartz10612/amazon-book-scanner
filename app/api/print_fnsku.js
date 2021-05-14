@@ -1,88 +1,84 @@
 require("dotenv").config();
-const SellingPartnerAPI = require("amazon-sp-api");
 const prompt = require("prompt-validate");
-const playSound = require("../lib/playSound");
-const makeDb = require("../lib/db");
-const { printTable } = require('console-table-printer');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const path = require('path');
-const delay = require('delay');
+const db = require('./db');
 var Encoder = require("code-128-encoder")
 var encoder= new Encoder()
 
-let sellingPartner = new SellingPartnerAPI({
-    region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
-    refresh_token: process.env.REFRESH_TOKEN, // The refresh token of your app user
-});
-
-
-
-const db = makeDb({
-    host: process.env.MYSQL_DOMAIN,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASS,
-    database: process.env.MYSQL_DATABASE,
-});
-
 toPrint = [];
-var index = parseInt(prompt('INDEX (start at 1) >> '));
-var page = parseInt(prompt('Next page (start at 0) >> '));
+var index = 1;
+var page = 0;
 
-async function main() {
-    const ISBN = prompt('ISBN >> ');
+async function printFNSKU(ISBN, socket) {
+    //const ISBN = prompt('ISBN >> ');
     if (ISBN == 'stop') {
         process.exit(0);
     } else {
         const data = await db.query('SELECT id, title, FNSKU from profitable_books WHERE ISBN = ? AND FNSKU IS NOT NULL AND mail_box_id IS NULL', [ISBN]);
         if (data.length > 1) {
-            playSound('fail.mp3');
+            socket.emit("fail_sound");
+
             console.log('More than 1 row!');
-            printTable(data);
-            return main();
+            socket.emit('logs', 'More than 1 row!');
+            data.forEach(row => {
+                socket.emit('logs', row.title);
+            });
+
+            return;
         } else if (data.length == 0) {
-            playSound('fail.mp3');
-            console.log('Not known FNSKU...');
-            return main();
+            socket.emit("fail_sound");
+            socket.emit('logs', 'Not known ISBN...');
+            console.log('Not known ISBN...');
+            return;
 
         } else {
-
-            printTable(data);
-            playSound('success.mp3');
+            socket.emit('logs', data[0].title);
+            socket.emit("success_sound");
 
             if (toPrint.length == 2) {
                 toPrint.push(data[0].FNSKU);
-                await printPage();
+                await printPage(socket);
                 page += 1;
+                socket.emit('print_fnsku_vals_update', {page: page, index: index});
                 toPrint = [];
-                main();
+                return;
             } else {
                 toPrint.push(data[0].FNSKU);
-                return main();
+                return;
             }
         }
     }
 }
 
-main();
+async function printPage(socket) {
 
-async function printPage() {
+    if (page >= 3) {
+        socket.emit("attn_sound");
 
-    if (page == 3) {
-        playSound('attn.mp3');
         index += 1;
-        prompt('Reload labels...');
+
+        const question = ['Reload labels...', 'Done'];
+        socket.emit("prompt", question);
+        await new Promise((resolve) => {
+            socket.once("promptRes", (answer) => {
+              resolve(answer);
+            });
+          });
+
         page = 0;
+        socket.emit('print_fnsku_vals_update', {page: page, index: index});
     }
 
     const id = makeid(5);
     const doc = new PDFDocument();
-    var pdfStream = fs.createWriteStream(path.join(__dirname, `../output/output${id}.pdf`));
+    var pdfStream = fs.createWriteStream(path.join(__dirname, `./output/output${id}.pdf`));
     const reverseToPrint = toPrint.reverse();
 
-    doc.font('./assets/LibreBarcode128Text-Regular.ttf').fontSize(34);
+    doc.font('./fonts/LibreBarcode128Text-Regular.ttf').fontSize(34);
     const string1 = encoder.encode(reverseToPrint[0]);
     const string2 = encoder.encode(reverseToPrint[1]);
     const string3 = encoder.encode(reverseToPrint[2]);
@@ -100,20 +96,14 @@ async function printPage() {
     doc.pipe(pdfStream)
     doc.end();
 
-    playSound('attn.mp3');
+    socket.emit("attn_sound");
 
     console.log(`Waiting for pdf page ${page}`);
     return new Promise((resolve, reject) => {
         pdfStream.addListener('finish', async () => {
             console.log(`Printing pdf page ${page}`);
-            const filepath = path.join(__dirname, `../output/output${id}.pdf`);
-            const { stdout, stderr } = await exec(`lp ${filepath}`);
-
-            if (stderr) {
-                console.error(`error: ${stderr}`);
-                reject();
-            }
-            console.log(`Number of files ${stdout}`);
+            socket.emit('logs', `Printing pdf page ${page}`);
+            socket.emit('print_id', id);
             resolve();
         });
     });
@@ -128,4 +118,24 @@ function makeid(length) {
             charactersLength)));
     }
     return result.join('');
+}
+
+function getPage() {
+    return page;
+}
+
+function getIndex() {
+    return index;
+}
+
+function setVals(i, p) {
+    index = parseInt(i);
+    page = parseInt(p);
+}
+
+module.exports = {
+    printFNSKU: printFNSKU,
+    setVals: setVals,
+    getPage: getPage,
+    getIndex: getIndex
 }

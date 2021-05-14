@@ -2,7 +2,7 @@ node_modules/
 secrets.txt
 .env
 uploads/
-output/
+app/api/output/*
 
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 

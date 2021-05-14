@@ -21,6 +21,7 @@
     "@angular/router": "~11.1.2",
     "bootstrap": "^5.0.0",
     "ngx-socket-io": "^4.0.0",
+    "print-js": "^1.6.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"

@@ -1,0 +1,16 @@
+{
+    "/v1": {
+      "target": "http://localhost:3200",
+      "secure": false
+    },
+    "/output": {
+      "target": "http://localhost:3200",
+      "secure": false
+    },
+    "/socket.io": {
+      "target": "http://localhost:3200",
+      "secure": false,
+      "changeOrigin": true,
+      "ws": true
+    }
+  }

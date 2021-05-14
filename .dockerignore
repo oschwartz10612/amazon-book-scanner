@@ -5,7 +5,7 @@ app/dashboard/dist
 service_account.json
 README.md
 app/dashboard/dist
-
+output/*
 
 node_modules/
 secrets.txt
