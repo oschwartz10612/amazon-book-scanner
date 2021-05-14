@@ -1,24 +1,13 @@
 require("dotenv").config();
-const SellingPartnerAPI = require("amazon-sp-api");
-const makeDb = require("../lib/db");
+const db = require("./db");
+const sellingPartner = require("./sp");
 
-let sellingPartner = new SellingPartnerAPI({
-    region: "na", // The region of the selling partner API endpoint ("eu", "na" or "fe")
-    refresh_token: process.env.REFRESH_TOKEN, // The refresh token of your app user
-});
-
-const db = makeDb({
-    host: process.env.MYSQL_DOMAIN,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASS,
-    database: process.env.MYSQL_DATABASE,
-});
-
-(async () => {
+async function getFNSKU(socket) {
 
     const data = await db.query('SELECT * FROM profitable_books WHERE FNSKU IS NULL AND sent = 1 LIMIT 50');
     const SKUs = data.map(book => book.SKU);
     console.log(SKUs.length);
+    socket.emit('logs', SKUs.length);
 
     var count = 0;
 
@@ -33,6 +22,7 @@ const db = makeDb({
     });
 
     console.log(summary.inventorySummaries.length);
+    socket.emit('logs', summary.inventorySummaries.length);
 
     summary.inventorySummaries.forEach(async item => {
         try {
@@ -42,11 +32,10 @@ const db = makeDb({
         }
         count += 1;
         console.log(`${count} - ${item.sellerSku}`);
-
-        if (count == SKUs.length) {
-            process.exit(0);
-        }
+        socket.emit('logs', `${count} - ${item.sellerSku}`);
     });
-    
+};
 
-})();
+module.exports = {
+    getFNSKU: getFNSKU
+};

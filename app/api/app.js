@@ -9,6 +9,7 @@ const path = require("path");
 const tesseract = require("node-tesseract-ocr");
 const profit_check = require("./profit_check");
 const print_fnsku = require("./print_fnsku");
+const get_fnsku = require("./get_fnsku");
 
 const PORT = process.env.PORT || 3200;
 const HOST = "0.0.0.0";
@@ -46,6 +47,10 @@ io.on('connection', socket => {
   socket.on('print_fnsku_vals', async req => {
     print_fnsku.setVals(req.index, req.page);
     console.log(req.page);
+  });
+
+  socket.on('get_fnsku', async req => {
+    get_fnsku.getFNSKU(socket);
   });
 });
 

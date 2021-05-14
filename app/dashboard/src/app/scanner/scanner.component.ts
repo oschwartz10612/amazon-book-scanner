@@ -77,9 +77,9 @@ export class ScannerComponent implements OnInit {
       } else {
         this.socket.emit('isbn', val);
       }
-      event.target.value = '';
     }
 
+    event.target.value = '';
     this.logData = [];
   }
 
@@ -89,5 +89,9 @@ export class ScannerComponent implements OnInit {
 
   setPrintVals() {
     this.socket.emit('print_fnsku_vals', {index: this.index.nativeElement.value, page: this.page.nativeElement.value});
+  }
+
+  getFNSKU() {
+    this.socket.emit('get_fnsku');
   }
 }
