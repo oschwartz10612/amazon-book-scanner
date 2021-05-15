@@ -10,6 +10,7 @@ const tesseract = require("node-tesseract-ocr");
 const profit_check = require("./profit_check");
 const print_fnsku = require("./print_fnsku");
 const get_fnsku = require("./get_fnsku");
+const box_contents = require("./box_contents");
 
 const PORT = process.env.PORT || 3200;
 const HOST = "0.0.0.0";
@@ -27,6 +28,7 @@ io.on('connection', socket => {
   socket.emit('fail_box_update', profit_check.getUnprofitBox());
   socket.emit('success_box_update', profit_check.getProfitBox());
   socket.emit('print_fnsku_vals_update', {page: print_fnsku.getPage(), index: print_fnsku.getIndex()});
+  socket.emit('mail_box_update', box_contents.getMailBox());
 
   socket.on('isbn', async req => {
     profit_check.profitCheck(req, socket);
@@ -51,6 +53,10 @@ io.on('connection', socket => {
 
   socket.on('get_fnsku', async req => {
     get_fnsku.getFNSKU(socket);
+  });
+
+  socket.on('box_contents', async req => {
+    box_contents.boxContents(req, socket);
   });
 });
 

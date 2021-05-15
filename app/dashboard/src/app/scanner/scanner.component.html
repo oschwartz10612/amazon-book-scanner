@@ -5,12 +5,14 @@
     <div class="alert alert-danger" role="alert" id="fail_box">
       {{ currentFailBox }}
     </div>
+    <div class="alert alert-primary" role="alert" id="fail_box">
+      {{ currentMailBox }}
+    </div>
+
 
 
 
     <div>
-      <input type="checkbox" class="mr-2" id="btncheck1" autocomplete="off" (click)="usePrinter()">
-      <label class="" for="btncheck1">Checkbox 1</label>
       <div class="input-group mt-4">
         <span class="input-group-text">Index</span>
         <input
@@ -28,6 +30,25 @@
         />
       </div>
       <button class="btn btn-primary" (click)="setPrintVals()">Save</button>
+    </div>
+
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked value="profit" (change)="changeBehavior($event)">
+      <label class="form-check-label" for="flexRadioDefault1">
+        Profit Check
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" value="print" (change)="changeBehavior($event)">
+      <label class="form-check-label" for="flexRadioDefault2">
+        Print FNSKU
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" value="boxContents" (change)="changeBehavior($event)">
+      <label class="form-check-label" for="flexRadioDefault3">
+        Box contents
+      </label>
     </div>
 
     <button class="btn btn-primary" (click)="getFNSKU()">Get FNSKUs</button>

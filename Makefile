@@ -8,6 +8,7 @@ build:
 	gcloud builds submit --tag gcr.io/${PROJECT_ID}/amazon_api
 
 deploy:
+	gcloud builds submit --tag gcr.io/${PROJECT_ID}/amazon_api
 	gcloud run deploy --image gcr.io/${PROJECT_ID}/amazon_api --platform managed \
 	--set-env-vars SELLING_PARTNER_APP_CLIENT_ID="${SELLING_PARTNER_APP_CLIENT_ID}" \
 	--set-env-vars SELLING_PARTNER_APP_CLIENT_SECRET="${SELLING_PARTNER_APP_CLIENT_SECRET}" \

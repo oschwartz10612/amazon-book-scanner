@@ -20,37 +20,42 @@ export class ScannerComponent implements OnInit {
   valuePrefix = 'value_box';
   failPrefix = 'box';
   logData = [];
-  currentFailBox: string
-  currentValueBox: string
+  currentFailBox: string;
+  currentValueBox: string;
+  currentMailBox: string;
   question: string;
   options: Array<string>;
-  isPrinter = false;
+  target = "profit";
 
   ngOnInit(): void {
     this.socket.on('logs', (text: string) => {
       this.logData.push(text);
       console.log(text);
     });
-    this.socket.on("fail_box_update", (text: string) => {
+    this.socket.on('fail_box_update', (text: string) => {
       this.currentFailBox = text;
     });
-    this.socket.on("success_box_update", (text: string) => {
+    this.socket.on('success_box_update', (text: string) => {
       this.currentValueBox = text;
     });
-    this.socket.on("refresh_logs", () => {
+    this.socket.on('mail_box_update', (text: string) => {
+      this.currentMailBox = text;
+    });
+
+    this.socket.on('refresh_logs', () => {
       this.logData = [];
     });
 
-    this.socket.on("prompt", (data) => {
+    this.socket.on('prompt', (data) => {
       this.question = data.shift();
       this.options = data;
     });
 
-    this.socket.on("print_id", (data) => {
-      printJS(`output/output${data}.pdf`)
+    this.socket.on('print_id', (data) => {
+      printJS(`output/output${data}.pdf`);
     });
 
-    this.socket.on("print_fnsku_vals_update", (data) => {
+    this.socket.on('print_fnsku_vals_update', (data) => {
       this.index.nativeElement.value = data.index;
       this.page.nativeElement.value = data.page;
     });
@@ -60,7 +65,7 @@ export class ScannerComponent implements OnInit {
 
   promptRes(index: number) {
     console.log(index);
-    
+
     this.socket.emit('promptRes', index);
     this.question = null;
     this.input.nativeElement.focus();
@@ -69,8 +74,10 @@ export class ScannerComponent implements OnInit {
   onInputKeydown(event: any) {
     const val = event.target.value;
 
-    if (this.isPrinter) {
+    if (this.target == "print") {
       this.socket.emit('print_fnsku', val);
+    } else if (this.target == "boxContents") {
+      this.socket.emit('box_contents', val);
     } else {
       if (val.startsWith(this.valuePrefix) || val.startsWith(this.failPrefix)) {
         this.socket.emit('set_box', val);
@@ -83,12 +90,15 @@ export class ScannerComponent implements OnInit {
     this.logData = [];
   }
 
-  usePrinter() {
-    this.isPrinter = !this.isPrinter;
+  changeBehavior(e) {
+    this.target = e.target.value;
   }
 
   setPrintVals() {
-    this.socket.emit('print_fnsku_vals', {index: this.index.nativeElement.value, page: this.page.nativeElement.value});
+    this.socket.emit('print_fnsku_vals', {
+      index: this.index.nativeElement.value,
+      page: this.page.nativeElement.value,
+    });
   }
 
   getFNSKU() {

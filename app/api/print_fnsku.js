@@ -37,6 +37,7 @@ async function printFNSKU(ISBN, socket) {
 
         } else {
             socket.emit('logs', data[0].title);
+            socket.emit('logs', data[0].FNSKU);
             socket.emit("success_sound");
 
             if (toPrint.length == 2) {
