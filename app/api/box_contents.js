@@ -37,6 +37,9 @@ async function boxContents(FNSKU, socket) {
             socket.emit('logs', 'SQL Warning!');
             socket.emit('logs', data.message);
             socket.emit('fail_sound');
+        } else {
+            socket.emit('logs', `Set ${FNSKU} to ${mail_box_id}`);
+            socket.emit('success_sound');
         }
     }
 }
